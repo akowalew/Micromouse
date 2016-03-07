@@ -13,6 +13,9 @@
 #define BTN_LEFT	GPIO_PIN_4
 #define BTN_RIGHT	GPIO_PIN_0
 
+#define BTN_LEFT_INT_PIN	GPIO_INT_PIN_4
+#define BTN_RIGHT_INT_PIN	GPIO_INT_PIN_0
+
 void boardButtonsInit() ;
 bool isLeftBtnPressed() ;
 bool isRightBtnPressed() ;
