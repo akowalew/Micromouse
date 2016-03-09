@@ -45,7 +45,7 @@ const uint32_t chsTable[IRSEN_ADC_CH_NUM] = {
 		IRSEN_ADC_CH_Q4
 };
 
-void irSenTimerInt() ;
+void irSenTimInt() ;
 void irSenAdcInt() ;
 
 void irSenInit() {
@@ -99,7 +99,7 @@ void irSenInit() {
 	SysCtlDelay(3) ;
 
 	TimerConfigure(IRSEN_TIMER_BASE, TIMER_CFG_PERIODIC) ;
-	TimerIntRegister(IRSEN_TIMER_BASE, TIMER_BOTH, irSenTimerInt) ;
+	TimerIntRegister(IRSEN_TIMER_BASE, TIMER_BOTH, irSenTimInt) ;
 	TimerLoadSet(IRSEN_TIMER_BASE, TIMER_A, IRSEN_TIMER_LD_VAL) ;
 	TimerMatchSet(IRSEN_TIMER_BASE, TIMER_A, IRSEN_TIMER_LD_VAL) ;
 
@@ -136,7 +136,7 @@ void irSenEnable() {
 #endif
 }
 
-void irSenInterrupt() {
+void irSenTimInt() {
 	TimerIntClear(IRSEN_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
 
 	// Code to enable IR diode

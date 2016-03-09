@@ -21,39 +21,37 @@
 #include "driverlib/uart.h"
 #include "driverlib/qei.h"
 
-#ifdef BT_STDIO
 #include "utils/uartstdio.h"
-#endif
 
 #include "Bluetooth.h"
 
-#include "cycleBuffer.h"
+struct {
+	volatile char inputData[BT_BUF_SZ] ;
+	volatile uint8_t charsReadSz ;
+	volatile uint8_t dataAvail : 1 ;
+	volatile uint8_t dataOverwrite : 1 ;
+} btStruct;
 
-static uint8_t rxBuffer[BT_BUFFER_SZ] ; //! Memory for CycleBuffer called rxCycleBuffer
-static CycleBuffer rxCycleBuffer ;	//! Receive Cycle Buffer. Data from interrupt goes here.
-
-/**
- * Function tells us, if there is something to get in rxCycleBuffer.
- * @return
- */
-inline bool btDataAvail() {
-	return !rxCycleBuffer.empty ;
+bool btIsDataAvail() {
+	return btStruct.dataAvail ;
 }
 
-/**
- * Function shifts all data that rxCycleBuffer has to the destination
- * @param destination
- * @return	Function returns how much bytes are shifted to the destination.
- */
+bool btIsDataOverwrite() {
+	return btStruct.dataOverwrite ;
+}
+
 uint8_t btGetData(uint8_t *destination) {
-	uint8_t howMuch = 0 ;
+	uint8_t i ;
+	for(i = 0 ; i < btStruct.charsReadSz ; i++)
+		destination[i] = btStruct.inputData[i] ;
 
-	while(!rxCycleBuffer.empty) {
-		cycleBufferPop(&rxCycleBuffer, destination++) ;
-		howMuch ++ ;
-	}
+	uint8_t ret = btStruct.charsReadSz ;
 
-	return howMuch ;
+	btStruct.charsReadSz = 0 ;
+	btStruct.dataAvail = 0 ;
+	btStruct.dataOverwrite = 0 ;
+
+	return ret ;
 }
 
 /**
@@ -62,8 +60,14 @@ uint8_t btGetData(uint8_t *destination) {
 void btInterrupt() {
 	UARTIntClear(BT_UART_BASE, UART_INT_RX) ;
 
-	while(UARTCharsAvail(BT_UART_BASE))
-		cycleBufferPush(&rxCycleBuffer, UARTCharGet(BT_UART_BASE)) ;	// without overflow control
+	uint8_t i ;
+	for(i = 0 ; UARTCharsAvail(BT_UART_BASE) ; i++)
+		btStruct.inputData[i] = UARTCharGetNonBlocking(BT_UART_BASE) ;
+
+	if(btStruct.dataAvail == 1)
+		btStruct.dataOverwrite = 1 ;
+	btStruct.dataAvail = 1 ;
+	btStruct.charsReadSz = i ;
 }
 
 /**
@@ -95,7 +99,6 @@ void btInit() {
 			UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE ) ;
 	UARTEnable(BT_UART_BASE) ;
 
-
 #ifdef BT_STDIO
 	UARTStdioConfig(
 			BT_UART_NUMBER,
@@ -103,17 +106,10 @@ void btInit() {
 			16000000);
 #endif
 
-	cycleBufferInit(&rxCycleBuffer, rxBuffer, BT_BUFFER_SZ) ;
-
-	UARTFIFODisable(BT_UART_BASE) ;
-	//UARTFIFOLevelSet(BT_UART_BASE, UART_FIFO_TX1_8, UART_FIFO_RX1_8) ;
+	UARTFIFOEnable(BT_UART_BASE) ;
+	UARTFIFOLevelSet(BT_UART_BASE, BT_UART_TX_FIFO, BT_UART_RX_FIFO) ;
 	UARTIntRegister(BT_UART_BASE, btInterrupt) ;
 	UARTIntEnable(BT_UART_BASE, UART_INT_RX) ; // Receive interrupt
-
-	btTurnOn() ;
-
-	// Configure the Bluetooth
-	// btConfigure() ;
 }
 
 

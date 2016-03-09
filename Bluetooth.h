@@ -9,7 +9,8 @@
 #define BLUETOOTH_H_
 
 void btInit(void) ;
-bool btDataAvail() ;
+bool btIsDataAvail() ;
+bool btIsDataOverwrite() ;
 uint8_t btGetData(uint8_t *destination) ;
 
 #define BT_SYSCTL_PERIPH_GPIO	SYSCTL_PERIPH_GPIOB
@@ -21,12 +22,10 @@ uint8_t btGetData(uint8_t *destination) ;
 #define BT_GPIO_TX				GPIO_PB1_U1TX
 #define BT_RX_PIN				GPIO_PIN_0
 #define BT_TX_PIN				GPIO_PIN_1
-
+#define BT_UART_TX_FIFO			UART_FIFO_TX2_8
+#define BT_UART_RX_FIFO			UART_FIFO_RX4_8
 #define BT_BAUD					115200
-
-#define BT_RESPOND_PERIOD_MS	100
-
-#define BT_BUFFER_SZ	32
+#define BT_BUF_SZ				16
 
 // #define BT_STDIO
 

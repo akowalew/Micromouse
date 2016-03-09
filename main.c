@@ -59,7 +59,15 @@ int main(void)
 	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_0, GPIO_PIN_2 | GPIO_PIN_0) ;
 */
 
-	while(1) {
+	uint8_t tab[17] ;
+	uint8_t i ;
+	uint8_t j ;
 
+	while(1) {
+		if(btIsDataAvail()) {
+			i = btGetData(tab) ;
+			for(j = 0 ; j < i ; j++)
+				usbUartSendChar(tab[j]);
+		}
 	}
 }
