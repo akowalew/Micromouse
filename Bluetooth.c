@@ -82,22 +82,19 @@ void btInit() {
 	GPIOPinTypeUART(
 			BT_GPIO_PORT_BASE,
 			BT_RX_PIN | BT_TX_PIN) ;
-	GPIOPinTypeGPIOOutput(
-			BT_GPIO_PORT_BASE,
-			BT_POWER_PIN) ;
 
 	// Uart configuration
 	UARTClockSourceSet(
 			BT_UART_BASE,
 			UART_CLOCK_PIOSC) ;
-	/*
+
 	UARTConfigSetExpClk(
 			BT_UART_BASE,
 			16000000,
 			BT_BAUD,
 			UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE ) ;
 	UARTEnable(BT_UART_BASE) ;
-	*/
+
 
 #ifdef BT_STDIO
 	UARTStdioConfig(
@@ -119,17 +116,4 @@ void btInit() {
 	// btConfigure() ;
 }
 
-/**
- * Turn Bluetooth ON. HIGH state on POWER_PIN should activate the transistor placed before BT.
- */
-inline void btTurnOn() {
-	GPIOPinWrite(BT_GPIO_PORT_BASE, BT_POWER_PIN, BT_POWER_PIN) ;
-}
-
-/**
- * Turn Bluetooth OFF. LOW state on POWER_PIN should deactivate the transistor placed before BT.
- */
-void btTurnOff() {
-	GPIOPinWrite(BT_GPIO_PORT_BASE, BT_POWER_PIN, 0) ;
-}
 

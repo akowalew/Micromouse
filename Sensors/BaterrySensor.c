@@ -59,7 +59,7 @@ void batSensInit() {
 			BATSENS_ADC_SEQ_NUM,
 			batSensAdcInt) ;
 
-	ADCHardwareOversampleConfigure(BATSENS_ADC_BASE, 16) ;
+	ADCHardwareOversampleConfigure(BATSENS_ADC_BASE, BATSENS_ADC_OVERSAMP) ;
 
 	// Timer trigger configure
 	SysCtlPeripheralEnable(BATSENS_TIMER_PERIPH) ;
@@ -67,6 +67,7 @@ void batSensInit() {
 
 	TimerConfigure(
 			BATSENS_TIMER_BASE,
+
 			TIMER_CFG_SPLIT_PAIR |
 
 #if BATSENS_TIMER_LETTER == TIMER_A
@@ -86,7 +87,6 @@ void batSensInit() {
 
 	TimerADCEventSet(
 			BATSENS_TIMER_BASE,
-
 #if BATSENS_TIMER_LETTER == TIMER_A
 			TIMER_ADC_CAPMATCH_A
 #elif BATSENS_TIMER_LETTER == TIMER_B
@@ -94,7 +94,6 @@ void batSensInit() {
 #else
 #error "Bad Timer Letter. Should be TIMER_A or TIMER_B"
 #endif
-
 			) ;
 
 	TimerLoadSet(BATSENS_TIMER_BASE, BATSENS_TIMER_LETTER, BATSENS_TIMER_MATCH_VAL) ;

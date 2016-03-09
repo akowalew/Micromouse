@@ -24,24 +24,40 @@
 #include "Bluetooth.h"
 
 #include "Sensors/BatterySensor.h"
+#include "Sensors/IRSensors.h"
 
 int main(void)
                                                                                                                                                                                                                                             {
 	SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ ) ;
 
+
+	boardButtonsInit() ;
 	usbUartInit() ;
 	myTimerInit() ;
 	btInit() ;
 
-	// PA6, PA7, PD2 LEDS
-	// PD0 BUZZ
-	// BT PB0 PB1
-	// PC7 PF4 SWITCHE
-
-	// sampleFunction2() ;
-
 	batSensInit() ;
 	batSensEnable() ;
+
+	irSenInit() ;
+	irSenEnable() ;
+
+	// PA6, PA7, PD2 LEDS
+		// PD0 BUZZ
+		// BT PB0 PB1
+		// PC7 PF4 SWITCHE
+
+	/*
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA) ;
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD) ;
+	SysCtlDelay(3) ;
+
+	GPIOPinTypeGPIOOutput(GPIO_PORTA_BASE, GPIO_PIN_6 | GPIO_PIN_7) ;
+	GPIOPinTypeGPIOOutput(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_0) ;
+
+	GPIOPinWrite(GPIO_PORTA_BASE, GPIO_PIN_6 | GPIO_PIN_7 , GPIO_PIN_6 | GPIO_PIN_7 ) ;
+	GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_2 | GPIO_PIN_0, GPIO_PIN_2 | GPIO_PIN_0) ;
+*/
 
 	while(1) {
 
