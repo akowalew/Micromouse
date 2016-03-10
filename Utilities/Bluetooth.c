@@ -19,24 +19,21 @@
 #include "driverlib/interrupt.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/uart.h"
-#include "driverlib/qei.h"
-
-#include "utils/uartstdio.h"
 
 #include "Bluetooth.h"
 
 struct {
-	volatile char inputData[BT_BUF_SZ] ;
+	volatile uint8_t inputData[BT_BUF_SZ] ;
 	volatile uint8_t charsReadSz ;
 	volatile uint8_t dataAvail : 1 ;
 	volatile uint8_t dataOverwrite : 1 ;
 } btStruct;
 
-bool btIsDataAvail() {
+uint8_t btIsDataAvail() {
 	return btStruct.dataAvail ;
 }
 
-bool btIsDataOverwrite() {
+uint8_t btIsDataOverwrite() {
 	return btStruct.dataOverwrite ;
 }
 
@@ -60,8 +57,8 @@ uint8_t btGetData(uint8_t *destination) {
 void btInterrupt() {
 	UARTIntClear(BT_UART_BASE, UART_INT_RX) ;
 
-	uint8_t i ;
-	for(i = 0 ; UARTCharsAvail(BT_UART_BASE) ; i++)
+	uint8_t i = 0 ;
+	for( ; UARTCharsAvail(BT_UART_BASE) ; i++)
 		btStruct.inputData[i] = UARTCharGetNonBlocking(BT_UART_BASE) ;
 
 	if(btStruct.dataAvail == 1)

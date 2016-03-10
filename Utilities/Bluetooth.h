@@ -9,8 +9,8 @@
 #define BLUETOOTH_H_
 
 void btInit(void) ;
-bool btIsDataAvail() ;
-bool btIsDataOverwrite() ;
+uint8_t btIsDataAvail() ;
+uint8_t btIsDataOverwrite() ;
 uint8_t btGetData(uint8_t *destination) ;
 
 #define BT_SYSCTL_PERIPH_GPIO	SYSCTL_PERIPH_GPIOB

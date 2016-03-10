@@ -33,8 +33,8 @@
 #include "../uartstdio.h"
 
 struct {
-	uint32_t values[IRSEN_ADC_CH_NUM] ;
-	uint8_t i ;
+	volatile uint32_t values[IRSEN_ADC_CH_NUM] ;
+	volatile uint8_t i ;
 
 } irSenStruct;
 
@@ -104,10 +104,6 @@ void irSenInit() {
 	TimerMatchSet(IRSEN_TIMER_BASE, TIMER_A, IRSEN_TIMER_LD_VAL) ;
 
 	irSenStruct.i = 0 ;
-
-#ifdef DEBUG
-	UARTprintf("IrSen initiated.\n") ;
-#endif
 }
 
 void irSenEnable() {
@@ -130,10 +126,6 @@ void irSenEnable() {
 	TimerEnable(IRSEN_TIMER_BASE, TIMER_BOTH) ;
 	TimerIntEnable(IRSEN_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
 	TimerIntClear(IRSEN_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
-
-#ifdef DEBUG
-	UARTprintf("IrSen enabled.\n") ;
-#endif
 }
 
 void irSenTimInt() {
@@ -143,13 +135,13 @@ void irSenTimInt() {
 	//
 	//
 
-	ADCProcessorTrigger(IRSEN_ADC_BASE, IRSEN_ADC_SEQ_NUM) ;
+	//ADCProcessorTrigger(IRSEN_ADC_BASE, IRSEN_ADC_SEQ_NUM) ;
 }
 
 void irSenAdcInt() {
 	ADCIntClear(IRSEN_ADC_BASE, IRSEN_ADC_SEQ_NUM) ;
 
-	ADCSequenceDataGet(
+	/*ADCSequenceDataGet(
 			IRSEN_ADC_BASE,
 			IRSEN_ADC_SEQ_NUM,
 			&irSenStruct.values[irSenStruct.i++]) ;
@@ -160,6 +152,7 @@ void irSenAdcInt() {
 			IRSEN_ADC_STEP_NUM,
 			ADC_CTL_END | ADC_CTL_IE | irSenStruct.values[irSenStruct.i] ) ;
 
+*/
 	// Code to disable IR diode
 	//
 	//

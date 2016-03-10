@@ -20,12 +20,11 @@
 #include "driverlib/timer.h"
 #include "inc/hw_timer.h"
 
-#include "utils/uartstdio.h"
 #include "../TivaPeriphs/UsbUart.h"
 
 struct {
 	volatile float cell1st, cell2nd, cell1stdiff ;
-	bool batState ;
+	volatile bool batState ;
 } batSensStruct;
 
 void batSensAdcInt() ;
@@ -101,10 +100,6 @@ void batSensInit() {
 			BATSENS_TIMER_BASE,
 			BATSENS_TIMER_LETTER,
 			BATSENS_TIMER_MATCH_VAL) ;
-
-#ifdef DEBUG
-	UARTprintf("BatSens initiated.\n") ;
-#endif
 }
 
 void batSensEnable() {
@@ -113,10 +108,6 @@ void batSensEnable() {
 	ADCIntClear(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 
 	TimerEnable(BATSENS_TIMER_BASE, BATSENS_TIMER_LETTER) ;
-
-#ifdef DEBUG
-	UARTprintf("BatSens enabled.\n") ;
-#endif
 }
 
 void batSensDisable() {
@@ -124,16 +115,12 @@ void batSensDisable() {
 	ADCIntDisable(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 
 	TimerDisable(BATSENS_TIMER_BASE, BATSENS_TIMER_LETTER) ;
-
-#ifdef DEBUG
-	UARTprintf("BatSens disabled.\n") ;
-#endif
 }
 
 void batSensAdcInt() {
 	ADCIntClear(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 
-	uint32_t adcVal[2] ;
+	uint32_t adcVal[4] ;
 	ADCSequenceDataGet(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM, adcVal) ;
 
 	batSensStruct.cell1st = ( ((float)(adcVal[0])) * 3.239 ) / 4096.0  ;
@@ -151,9 +138,5 @@ void batSensAdcInt() {
 			batSensStruct.batState = false ;
 		else
 			batSensStruct.batState = true ;
-
-#ifdef DEBUG
-	UARTprintf("Voltage : 1st %d , 2nd %d, Both %d\n",  (int)((batSensStruct.cell1stdiff)*1000.0), (int)(batSensStruct.cell2nd * 1000.0), (int)(batSensStruct.cell1st * 1000.0)) ;
-#endif
 }
 

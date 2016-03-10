@@ -52,8 +52,6 @@
 // 80MHz -> 12.5 ns per cycle
 // 80000000 * 12.5 ns = 1sec
 
-#define DEBUG
-
 void batSensInit() ;
 void batSensEnable() ;
 void batSensDisable() ;

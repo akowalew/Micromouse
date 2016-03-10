@@ -18,99 +18,19 @@
 
 #include "MyTimer.h"
 
-// STRUKTURY
-
-// STRUKTURA PROCESU
-typedef struct {
-	uint32_t cycleMillis ;
-	uint32_t lastRun ;
-
-	uint8_t isEnabled : 1 ;
-	uint8_t isPeriodical : 1 ;
-
-	void (*ptr)() ;
-} CycleProcess ;
-
 // STRUKTURA
 struct {
 	volatile uint32_t millis ;
-	regId enabledProcessCount ;
-	CycleProcess cycleProcesses[MYTIMER_PROC_MAX_COUNT] ;
 
 	uint8_t isInitiated : 1 ;
 } myTimerStruct ;
 
 
-regId myTimerRegProc(
-		uint32_t cycleMillis,
-		void (*functionPointer)(void),
-		uint8_t isPeriodical )
-{
-	regId i ;
-	CycleProcess *elem = myTimerStruct.cycleProcesses ;
-	for(i = 0 ; i < MYTIMER_PROC_MAX_COUNT ; i++, elem++) {
-		if(elem->ptr == NULL) {
-			elem->isEnabled = 0 ;
-			elem->cycleMillis = cycleMillis ;
-			elem->ptr = functionPointer ;
-			elem->isPeriodical = isPeriodical ;
-
-			return i ;
-		}
-	}
-	return -1 ; // no free place
-}
-
-void myTimerUnregProc(regId id) {
-	if(myTimerStruct.cycleProcesses[id].ptr != NULL) {
-		myTimerStruct.cycleProcesses[id].isEnabled = 0 ;
-		myTimerStruct.cycleProcesses[id].ptr = NULL ;
-	}
-}
-
-void myTimerEnableProc(regId id) {
-	if(myTimerStruct.cycleProcesses[id].ptr != NULL &&
-			!myTimerStruct.cycleProcesses[id].isEnabled) {
-
-		myTimerStruct.cycleProcesses[id].lastRun = myTimerGetTime() ; // save the actual time
-
-		myTimerStruct.cycleProcesses[id].isEnabled = 1 ;
-		myTimerStruct.enabledProcessCount++ ;
-	}
-}
-
-void myTimerDisableProc(regId id) {
-	if(myTimerStruct.cycleProcesses[id].ptr != NULL &&
-			myTimerStruct.cycleProcesses[id].isEnabled) {
-
-		myTimerStruct.cycleProcesses[id].isEnabled = 0 ;
-		myTimerStruct.enabledProcessCount-- ;
-	}
-}
 
 void myTimerInt() {
 	uint32_t status = TimerIntStatus(MYTIMER_TIMER_BASE, true) ;
 	TimerIntClear(MYTIMER_TIMER_BASE, status) ;
 	myTimerStruct.millis++ ;
-
-	if(myTimerStruct.enabledProcessCount > 0) {
-		regId i ;
-		CycleProcess *elem = myTimerStruct.cycleProcesses ;
-		for(i = 0 ; i < MYTIMER_PROC_MAX_COUNT ; i++, elem++) {
-			if(		elem->isEnabled &&	// only this ?!
-					myTimerGetTime() - elem->lastRun >= elem->cycleMillis) {
-
-				// run process
-				elem->lastRun = myTimerGetTime() ;
-				elem->ptr() ;
-				if(elem->isPeriodical == false) {
-					// stop proc
-					elem->isEnabled = 0 ;
-					myTimerStruct.enabledProcessCount-- ;
-				}
-			}
-		}
-	}
 }
 
 void myTimerInit() {
@@ -130,7 +50,6 @@ void myTimerInit() {
 	TimerIntEnable(MYTIMER_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
 
 	myTimerStruct.millis = 0 ;
-	myTimerStruct.enabledProcessCount = 0 ;
 
 	TimerEnable(MYTIMER_TIMER_BASE, TIMER_A) ;
 
