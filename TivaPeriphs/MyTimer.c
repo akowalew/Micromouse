@@ -26,7 +26,6 @@ struct {
 } myTimerStruct ;
 
 
-
 void myTimerInt() {
 	uint32_t status = TimerIntStatus(MYTIMER_TIMER_BASE, true) ;
 	TimerIntClear(MYTIMER_TIMER_BASE, status) ;

@@ -157,8 +157,6 @@ void irSenAdcInt() {
 	//
 	//
 
-
-
 }
 
 #endif /* SENSORS_IRSENSORS_C_ */

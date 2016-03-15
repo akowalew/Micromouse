@@ -27,12 +27,15 @@
 #include "Sensors/IRSensors.h"
 
 #include "Utilities/topUtils.h"
+#include "Sensors/Encoders.h"
+#include "Effectors/Motors.h"
+
 
 int main(void)
                                                                                                                                                                                                                                             {
 	SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ ) ;
 
-	usbUartInit() ;
+	/* usbUartInit() ;
 	myTimerInit() ;
 	btInit() ;
 
@@ -44,7 +47,21 @@ int main(void)
 
 	utilsInit() ;
 
+	encInit() ;
+	encEnable() ; */
+
+	motorsInit() ;
+	motorsEnable() ;
+
+	motorsSetupM0(CLOCKWISE) ;
+	motorsSetupM1(CLOCKWISE) ;
+
+	motorsM0PwmSet(400) ;
+	motorsM1PwmSet(400) ;
+
+
 	while(1) {
+		/*
 		if(btn1isPushed())
 			ledsTurnOn(LEDS_RED) ;
 		else
@@ -53,6 +70,6 @@ int main(void)
 		if(btn2isPushed())
 			ledsTurnOn(LEDS_YELLOW) ;
 		else
-			ledsTurnOff(LEDS_YELLOW) ;
+			ledsTurnOff(LEDS_YELLOW) ; */
 	}
 }

@@ -16,5 +16,4 @@ void usbUartSendStr(const char *str) ;
 #define usbUartSendChar(chCharacter)	(UARTCharPut(USBUART_BASE, (chCharacter)))
 #define usbUartGetChar()				(UARTCharGet(USBUART_BASE))
 
-
 #endif /* USBUART_H_ */
