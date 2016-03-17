@@ -28,6 +28,8 @@
 
 void irSenInit() ;
 void irSenEnable() ;
+void irSenDisable() ;
+uint32_t irSenGetVal(uint8_t whichSensor) ;
 
 #define IRSEN_PWM_PERIOD	400
 // Frequency of PWM can be calculated : 80MHz / IRSEN_PWM_PERIOD(400) = 0.05MHz = 50kHz
@@ -41,15 +43,19 @@ void irSenEnable() ;
 #define IRSEN_ADC_CH_Q2		ADC_CTL_CH11
 #define IRSEN_ADC_CH_Q3		ADC_CTL_CH9
 #define IRSEN_ADC_CH_Q4		ADC_CTL_CH0
-#define IRSEN_ADC_CH_NUM	4
+#define IRSEN_ADC_SENSORS_NUM	4
 #define IRSEN_ADC_STEP_NUM	0
 
 // TIMER should be 32-bit.
 #define IRSEN_TIMER_PERIPH	SYSCTL_PERIPH_TIMER0
 #define IRSEN_TIMER_BASE	TIMER0_BASE
-#define IRSEN_TIMER_LD_VAL	400000
+#define IRSEN_TIMER_LD_VAL	40000000
 // 80MHz -> 12,5ns
-// 400000 * 12,5ns = 5000000ns = 5ms
+// 400000 * 12,5ns = 5000000ns = 500ms
+
+#define IRSEN_TIMER_DELAY_PERIPH	SYSCTL_PERIPH_TIMER1
+#define IRSEN_TIMER_DELAY_BASE		TIMER1_BASE
+#define IRSEN_TIMER_DELAY_LD_VAL	40000000
 
 #define DEBUG
 

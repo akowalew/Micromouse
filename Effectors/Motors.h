@@ -21,8 +21,8 @@ void motorsDisable() ;
 void motorsSetupM0(MOTORS_SETUP motorsSetup) ;
 void motorsSetupM1(MOTORS_SETUP motorsSetup) ;
 
-#define motorsM0PwmSet(u32pwmVal) (PWMPulseWidthSet(MOT_0_BASE, PWM_OUT_6, (u32pwmVal)))
-#define motorsM1PwmSet(u32pwmVal) (PWMPulseWidthSet(MOT_1_BASE, PWM_OUT_1, (u32pwmVal)))
+void motorsM0PwmSet(uint32_t u32pwmVal) ;
+void motorsM1PwmSet(uint32_t u32pwmVal) ;
 
 #define motorsM0In1Set()	(GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, GPIO_PIN_3))
 #define motorsM0In2Set()	(GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3))

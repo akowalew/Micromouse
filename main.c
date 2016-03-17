@@ -2,74 +2,55 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
 #include "inc/tm4c123gh6pm.h"
-#include "inc/hw_gpio.h"
+#include "inc/hw_memmap.h"
 #include "inc/hw_timer.h"
-#include "inc/hw_uart.h"
-#include "inc/hw_adc.h"
-
 #include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
 #include "driverlib/timer.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/uart.h"
-#include "driverlib/pwm.h"
-#include "driverlib/adc.h"
+#include "Utilities/robot.h"
 
-#include "utils/uartstdio.h"
-#include "TivaPeriphs/TivaPeriphs.h"
-#include "Utilities/Bluetooth.h"
+#include "uartstdio.h"
 
-#include "Sensors/BatterySensor.h"
-#include "Sensors/IRSensors.h"
+volatile bool a ;
 
-#include "Utilities/topUtils.h"
-#include "Sensors/Encoders.h"
-#include "Effectors/Motors.h"
-
+void intt() {
+	TimerIntClear(TIMER3_BASE, TIMER_TIMA_TIMEOUT) ;
+	UARTprintf("c\n") ;
+	a = true ;
+}
 
 int main(void)
                                                                                                                                                                                                                                             {
 	SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ ) ;
 
-	/* usbUartInit() ;
-	myTimerInit() ;
-	btInit() ;
+	robotInit() ;
+/*
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER3) ;
+	SysCtlDelay(3) ;
 
-	batSensInit() ;
-	batSensEnable() ;
+	TimerConfigure(TIMER3_BASE, TIMER_CFG_ONE_SHOT) ;
 
-	irSenInit() ;
-	irSenEnable() ;
+	TimerIntRegister(TIMER3_BASE,  TIMER_A, intt) ;
+	TimerIntEnable(TIMER3_BASE, TIMER_TIMA_TIMEOUT) ;
+	TimerIntClear(TIMER3_BASE, TIMER_TIMA_TIMEOUT) ;
 
-	utilsInit() ;
+	a = false ;
 
-	encInit() ;
-	encEnable() ; */
-
-	motorsInit() ;
-	motorsEnable() ;
-
-	motorsSetupM0(CLOCKWISE) ;
-	motorsSetupM1(CLOCKWISE) ;
-
-	motorsM0PwmSet(400) ;
-	motorsM1PwmSet(400) ;
+	TimerEnable(TIMER3_BASE, TIMER_BOTH) ;
 
 
+
+	TimerLoadSet(TIMER3_BASE, TIMER_A, 80000000) ;
 	while(1) {
-		/*
-		if(btn1isPushed())
-			ledsTurnOn(LEDS_RED) ;
-		else
-			ledsTurnOff(LEDS_RED) ;
-
-		if(btn2isPushed())
-			ledsTurnOn(LEDS_YELLOW) ;
-		else
-			ledsTurnOff(LEDS_YELLOW) ; */
+		if(a == true) {
+			TimerDisable(TIMER3_BASE, TIMER_BOTH) ;
+			TimerEnable(TIMER3_BASE, TIMER_BOTH) ;
+			a = false ;
+		}
 	}
+
+	return 0 ;
+*/
+
+	robotStart() ;
 }

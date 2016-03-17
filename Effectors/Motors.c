@@ -86,7 +86,6 @@ void motorsDisable() {
 	motorsM1StbyClr() ;
 
 	PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT | PWM_OUT_1_BIT, false) ;
-
 }
 
 void motorsSetupM0(MOTORS_SETUP motorsSetup) {
@@ -146,3 +145,12 @@ void motorsSetupM1(MOTORS_SETUP motorsSetup) {
 		break ;
 	}
 }
+
+inline void motorsM0PwmSet(uint32_t u32pwmVal) {
+	PWMPulseWidthSet(MOT_0_BASE, PWM_OUT_6, (u32pwmVal)) ;
+}
+
+inline void motorsM1PwmSet(uint32_t u32pwmVal) {
+	PWMPulseWidthSet(MOT_1_BASE, PWM_OUT_1, (u32pwmVal));
+}
+
