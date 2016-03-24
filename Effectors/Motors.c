@@ -52,8 +52,8 @@ void motorsInit() {
 
 	// initial gpio status
 
-	motorsSetupM0(SOFT_STOP) ;
-	motorsSetupM1(SOFT_STOP) ;
+	motorsSetupML(SOFT_STOP) ;
+	motorsSetupMR(SOFT_STOP) ;
 
 	// PWM Configuration
 
@@ -62,8 +62,8 @@ void motorsInit() {
 	PWMGenPeriodSet(MOT_0_BASE, MOT_0_GEN, MOT_PWM_PERIOD) ;
 	PWMGenPeriodSet(MOT_1_BASE, MOT_1_GEN, MOT_PWM_PERIOD) ;
 
-	motorsM0PwmSet(1) ;
-	motorsM1PwmSet(1) ;
+	motorsMLPwmSet(1) ;
+	motorsMRPwmSet(1) ;
 }
 
 void motorsEnable() {
@@ -71,8 +71,8 @@ void motorsEnable() {
 	PWMGenEnable(MOT_1_BASE, MOT_1_GEN) ;
 
 	// !STBY -> 1
-	motorsM0StbySet() ;
-	motorsM1StbySet() ;
+	motorsMLStbySet() ;
+	motorsMRStbySet() ;
 
 	PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT | PWM_OUT_1_BIT, true) ;
 }
@@ -82,31 +82,31 @@ void motorsDisable() {
 	PWMGenDisable(MOT_1_BASE, MOT_1_GEN) ;
 
 	// !STBY -> 0
-	motorsM0StbyClr() ;
-	motorsM1StbyClr() ;
+	motorsMLStbyClr() ;
+	motorsMRStbyClr() ;
 
 	PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT | PWM_OUT_1_BIT, false) ;
 }
 
-void motorsSetupM0(MOTORS_SETUP motorsSetup) {
+void motorsSetupML(MOTORS_SETUP motorsSetup) {
 	switch(motorsSetup) {
 	case SOFT_STOP :
 		// IN2 = 0
-		motorsM0In2Clr() ;
+		motorsMLIn2Clr() ;
 		// IN1 = 0
-		motorsM0In1Clr() ;
+		motorsMLIn1Clr() ;
 		break ;
 	case COUNTER_CLOCKWISE :
 		// IN2 = 1
-		motorsM0In2Set() ;
+		motorsMLIn2Set() ;
 		// IN1 = 0
-		motorsM0In1Clr() ;
+		motorsMLIn1Clr() ;
 		break ;
 	case CLOCKWISE :
 		// IN2 = 0
-		motorsM0In2Clr() ;
+		motorsMLIn2Clr() ;
 		// IN1 = 1
-		motorsM0In1Set() ;
+		motorsMLIn1Set() ;
 		break ;
 	case HARD_STOP :
 		// PWM = 0%
@@ -117,25 +117,25 @@ void motorsSetupM0(MOTORS_SETUP motorsSetup) {
 	}
 }
 
-void motorsSetupM1(MOTORS_SETUP motorsSetup) {
+void motorsSetupMR(MOTORS_SETUP motorsSetup) {
 	switch(motorsSetup) {
 	case SOFT_STOP :
 		// IN2 = 0
-		motorsM1In2Clr();
+		motorsMRIn2Clr();
 		// IN1 = 0
-		motorsM1In1Clr();
+		motorsMRIn1Clr();
 		break ;
 	case COUNTER_CLOCKWISE :
 		// IN2 = 1
-		motorsM1In2Set() ;
+		motorsMRIn2Set() ;
 		// IN1 = 0
-		motorsM1In1Clr() ;
+		motorsMRIn1Clr() ;
 		break ;
 	case CLOCKWISE :
 		// IN2 = 0
-		motorsM1In2Clr() ;
+		motorsMRIn2Clr() ;
 		// IN1 = 1
-		motorsM1In1Set() ;
+		motorsMRIn1Set() ;
 		break ;
 	case HARD_STOP :
 		// PWM = 0%
@@ -146,11 +146,11 @@ void motorsSetupM1(MOTORS_SETUP motorsSetup) {
 	}
 }
 
-inline void motorsM0PwmSet(uint32_t u32pwmVal) {
+inline void motorsMLPwmSet(uint32_t u32pwmVal) {
 	PWMPulseWidthSet(MOT_0_BASE, PWM_OUT_6, (u32pwmVal)) ;
 }
 
-inline void motorsM1PwmSet(uint32_t u32pwmVal) {
+inline void motorsMRPwmSet(uint32_t u32pwmVal) {
 	PWMPulseWidthSet(MOT_1_BASE, PWM_OUT_1, (u32pwmVal));
 }
 

@@ -23,48 +23,47 @@
 #include "Bluetooth.h"
 
 struct {
-	volatile uint8_t inputData[BT_BUF_SZ] ;
-	volatile uint8_t charsReadSz ;
-	volatile uint8_t dataAvail : 1 ;
-	volatile uint8_t dataOverwrite : 1 ;
-} btStruct;
+	uint8_t array[BT_TASKS_PARAM_NUM + 1] ;
+	void (*pFn[BT_TASKS_MAX_NUM])(uint8_t[BT_TASKS_PARAM_NUM]) ;
 
-uint8_t btIsDataAvail() {
-	return btStruct.dataAvail ;
+} btStruct ;
+
+void btAddMessage(uint8_t opCode, void (*pFn)(uint8_t[BT_TASKS_PARAM_NUM])) {
+	btStruct.pFn[opCode] = pFn ;
 }
 
-uint8_t btIsDataOverwrite() {
-	return btStruct.dataOverwrite ;
-}
-
-uint8_t btGetData(uint8_t *destination) {
-	uint8_t i ;
-	for(i = 0 ; i < btStruct.charsReadSz ; i++)
-		destination[i] = btStruct.inputData[i] ;
-
-	uint8_t ret = btStruct.charsReadSz ;
-
-	btStruct.charsReadSz = 0 ;
-	btStruct.dataAvail = 0 ;
-	btStruct.dataOverwrite = 0 ;
-
-	return ret ;
+void btDeleteMessage(uint8_t opCode) {
+	btStruct.pFn[opCode] = 0 ;
 }
 
 /**
  *	Bluetooth Interrupt. It gets all data from the UART and pushes them to the CycleBuffer.
  */
+
 void btInterrupt() {
 	UARTIntClear(BT_UART_BASE, UART_INT_RX) ;
 
-	uint8_t i = 0 ;
-	for( ; UARTCharsAvail(BT_UART_BASE) ; i++)
-		btStruct.inputData[i] = UARTCharGetNonBlocking(BT_UART_BASE) ;
+	uint8_t i ;
 
-	if(btStruct.dataAvail == 1)
-		btStruct.dataOverwrite = 1 ;
-	btStruct.dataAvail = 1 ;
-	btStruct.charsReadSz = i ;
+	while(1) {
+		i = 0 ;
+		while(UARTCharsAvail(BT_UART_BASE) && (i < (BT_TASKS_PARAM_NUM + 1))) {
+			btStruct.array[i++] = UARTCharGetNonBlocking(BT_UART_BASE);	// without overflow control
+			/*if(UARTRxErrorGet(BT_UART_BASE))
+				UARTprintf("!") ;*/
+		}
+
+		if(i < (BT_TASKS_PARAM_NUM+1)) // nie skompletowano polecenia
+			break ;
+
+		//UARTprintf("%c%c%c%c\n", tmpArray[0], tmpArray[1], tmpArray[2], tmpArray[3]) ;
+
+		if(btStruct.pFn[btStruct.array[0]] != 0) {
+			btStruct.pFn[btStruct.array[0]](btStruct.array+1) ; // wywołanie funkcji z tymi argumentami
+		}
+	}
+
+
 }
 
 /**
@@ -107,6 +106,11 @@ void btInit() {
 	UARTFIFOLevelSet(BT_UART_BASE, BT_UART_TX_FIFO, BT_UART_RX_FIFO) ;
 	UARTIntRegister(BT_UART_BASE, btInterrupt) ;
 	UARTIntEnable(BT_UART_BASE, UART_INT_RX) ; // Receive interrupt
+
+	uint8_t i ;
+	for(i = 0 ; i < BT_TASKS_MAX_NUM ; i++) {
+		btStruct.pFn[i] = 0 ;
+	}
 }
 
 

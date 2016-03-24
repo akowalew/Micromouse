@@ -22,12 +22,21 @@
 
 #include "../TivaPeriphs/UsbUart.h"
 
+#include "../Utilities/topUtils.h"
+
 struct {
 	volatile float cell1st, cell2nd, cell1stdiff ;
 	volatile bool batState ;
 } batSensStruct;
 
+void batSensGetMeasures(float destination[3]) {
+	destination[0] = batSensStruct.cell1st ;
+	destination[1] = batSensStruct.cell2nd ;
+	destination[2] = batSensStruct.cell1stdiff ;
+}
+
 void batSensAdcInt() ;
+void batSensTimInt() ;
 
 bool batSensCheckState() {
 	return batSensStruct.batState ;
@@ -41,7 +50,7 @@ void batSensInit() {
 	ADCSequenceConfigure(
 			BATSENS_ADC_BASE,
 			BATSENS_ADC_SEQ_NUM,
-			ADC_TRIGGER_TIMER,
+			ADC_TRIGGER_PROCESSOR,
 			BATSENS_ADC_PRIORITY) ;
 	ADCSequenceStepConfigure(
 			BATSENS_ADC_BASE,
@@ -64,42 +73,11 @@ void batSensInit() {
 	SysCtlPeripheralEnable(BATSENS_TIMER_PERIPH) ;
 	SysCtlDelay(3) ;
 
-	TimerConfigure(
-			BATSENS_TIMER_BASE,
-
-			TIMER_CFG_SPLIT_PAIR |
-
-#if BATSENS_TIMER_LETTER == TIMER_A
-			TIMER_CFG_A_PERIODIC
-#elif BATSENS_TIMER_LETTER == TIMER_B
-			TIMER_CFG_B_PERIODIC
-#else
-#error "Bad Timer Letter. Should be TIMER_A or TIMER_B"
-#endif
-
-			) ;
-
-	TimerControlTrigger(
-			BATSENS_TIMER_BASE,
-			BATSENS_TIMER_LETTER,
-			true) ;
-
-	TimerADCEventSet(
-			BATSENS_TIMER_BASE,
-#if BATSENS_TIMER_LETTER == TIMER_A
-			TIMER_ADC_CAPMATCH_A
-#elif BATSENS_TIMER_LETTER == TIMER_B
-			TIMER_ADC_CAPMATCH_B
-#else
-#error "Bad Timer Letter. Should be TIMER_A or TIMER_B"
-#endif
-			) ;
-
-	TimerLoadSet(BATSENS_TIMER_BASE, BATSENS_TIMER_LETTER, BATSENS_TIMER_MATCH_VAL) ;
-	TimerMatchSet(
-			BATSENS_TIMER_BASE,
-			BATSENS_TIMER_LETTER,
-			BATSENS_TIMER_MATCH_VAL) ;
+	TimerConfigure( BATSENS_TIMER_BASE, TIMER_CFG_PERIODIC) ;
+	TimerControlTrigger( BATSENS_TIMER_BASE, TIMER_BOTH, true) ;
+	TimerADCEventSet(BATSENS_TIMER_BASE, TIMER_ADC_TIMEOUT_A ) ;
+	TimerLoadSet(BATSENS_TIMER_BASE, TIMER_A, BATSENS_TIMER_PERIOD) ;
+	TimerIntRegister(BATSENS_TIMER_BASE, TIMER_A, batSensTimInt) ;
 }
 
 void batSensEnable() {
@@ -107,14 +85,21 @@ void batSensEnable() {
 	ADCIntEnable(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 	ADCIntClear(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 
-	TimerEnable(BATSENS_TIMER_BASE, BATSENS_TIMER_LETTER) ;
+	TimerEnable(BATSENS_TIMER_BASE, TIMER_BOTH) ;
+	TimerIntEnable(BATSENS_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
 }
 
 void batSensDisable() {
 	ADCSequenceDisable(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 	ADCIntDisable(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 
-	TimerDisable(BATSENS_TIMER_BASE, BATSENS_TIMER_LETTER) ;
+	TimerDisable(BATSENS_TIMER_BASE, TIMER_BOTH) ;
+	TimerIntDisable(BATSENS_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+}
+
+void batSensTimInt() {
+	TimerIntClear(BATSENS_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+	ADCProcessorTrigger(BATSENS_ADC_BASE, BATSENS_ADC_SEQ_NUM) ;
 }
 
 void batSensAdcInt() {
@@ -134,9 +119,17 @@ void batSensAdcInt() {
 	batSensStruct.cell2nd /= DIVIDER_4_2 ;
 	batSensStruct.cell1stdiff = batSensStruct.cell1st - batSensStruct.cell2nd ;
 
-	if(batSensStruct.cell1st < 7.2)
+	if(batSensStruct.cell1st < 6.5) {
 			batSensStruct.batState = false ;
-		else
+			buzPeriodicalOn() ;
+			ledsPeriodical2On() ;
+	}
+	else {
 			batSensStruct.batState = true ;
+			buzPeriodicalOff() ;
+			ledsPeriodical2Off() ;
+	}
 }
+
+
 

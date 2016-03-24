@@ -26,14 +26,19 @@
 void qei0Int() {
 	QEIIntClear(QEI0_BASE, QEI_INTTIMER) ;
 
-	UARTprintf("Q0 %d %d %d\n", QEIPositionGet(QEI0_BASE), QEIVelocityGet(QEI0_BASE), QEIDirectionGet(QEI0_BASE)) ;
+	//UARTprintf("Q0 %d %d %d\n", QEIPositionGet(QEI0_BASE), QEIVelocityGet(QEI0_BASE), QEIDirectionGet(QEI0_BASE)) ;
 }
 
 void qei1Int() {
 	QEIIntClear(QEI1_BASE, QEI_INTTIMER) ;
 
-	UARTprintf("Q1 %d %d %d\n", QEIPositionGet(QEI1_BASE), QEIVelocityGet(QEI1_BASE),  QEIDirectionGet(QEI1_BASE)) ;
+	//UARTprintf("Q1 %d %d %d\n", QEIPositionGet(QEI1_BASE), QEIVelocityGet(QEI1_BASE),  QEIDirectionGet(QEI1_BASE)) ;
 }
+
+uint32_t encRGetPos() 	{ return QEIPositionGet(QEI0_BASE);}
+uint32_t encLGetPos() 	{return QEIPositionGet(QEI1_BASE);}
+uint32_t encRGetVel() 	{ return QEIVelocityGet(QEI0_BASE);}
+uint32_t encLGetVel()	{ return QEIVelocityGet(QEI1_BASE);}
 
 void encInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_QEI0) ;
@@ -78,4 +83,13 @@ void encEnable() {
 
 	QEIIntEnable(QEI1_BASE, QEI_INTTIMER) ;
 	QEIIntClear(QEI1_BASE, QEI_INTTIMER) ;
+}
+
+void encDisable() {
+	QEIDisable(QEI0_BASE) ;
+	QEIDisable(QEI1_BASE) ;
+
+	QEIVelocityDisable(QEI0_BASE) ;
+	QEIVelocityDisable(QEI1_BASE) ;
+
 }

@@ -44,10 +44,9 @@
 #define BATSENS_ADC_OVERSAMP	16
 
 // Timer trigger configuration
-#define BATSENS_TIMER_PERIPH	SYSCTL_PERIPH_WTIMER0
-#define BATSENS_TIMER_BASE		WTIMER0_BASE
-#define BATSENS_TIMER_LETTER	TIMER_A
-#define BATSENS_TIMER_MATCH_VAL	80000000
+#define BATSENS_TIMER_PERIPH	SYSCTL_PERIPH_TIMER3
+#define BATSENS_TIMER_BASE		TIMER3_BASE
+#define BATSENS_TIMER_PERIOD	80000000UL
 
 // 80MHz -> 12.5 ns per cycle
 // 80000000 * 12.5 ns = 1sec
@@ -56,5 +55,6 @@ void batSensInit() ;
 void batSensEnable() ;
 void batSensDisable() ;
 bool batSensCheckState() ;
+void batSensGetMeasures(float destination[3]) ;
 
 #endif /* SENSORS_BATTERYSENSOR_H_ */

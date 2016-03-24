@@ -5,11 +5,12 @@
  *      Author: akowalew
  */
 
-#ifndef UTILITIES_ROBOT_H_
-#define UTILITIES_ROBOT_H_
+#ifndef ROBOTFILES_ROBOT_H_
+#define ROBOTFILES_ROBOT_H_
 
 void robotInit() ;
+void robotProcedure() ;
 void robotStart() ;
 void robotStop() ;
 
-#endif /* UTILITIES_ROBOT_H_ */
+#endif /* ROBOTFILES_ROBOT_H_ */

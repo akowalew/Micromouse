@@ -15,45 +15,108 @@
 #include "inc/tm4c123gh6pm.h"
 #include "inc/hw_gpio.h"
 #include "inc/hw_pwm.h"
+#include "inc/hw_timer.h"
 
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/pwm.h"
+#include "driverlib/timer.h"
+
+struct {
+	volatile bool led1State ;
+	volatile bool led2State ;
+	volatile bool led3State ;
+
+	volatile bool buzState ;
+
+	volatile bool led2Periodical ;
+	volatile bool buzPeriodical ;
+
+	void (*pFn1)() ;
+	void (*pFn2)() ;
+} topStruct ;
+
 
 // PA6, PA7, PD2 LEDS
-
-void ledsTurnOn(uint8_t whichLed) {
-	switch(whichLed) {
-		case LEDS_WHITE:
-			GPIOPinWrite(GPIO_PORTD_BASE, LEDS_WHITE_PIN, LEDS_WHITE_PIN) ;
-			break ;
-		case LEDS_RED :
-			GPIOPinWrite(GPIO_PORTA_BASE, LEDS_RED_PIN, LEDS_RED_PIN) ;
-			break ;
-		case LEDS_YELLOW :
-			GPIOPinWrite(GPIO_PORTA_BASE, LEDS_YELLOW_PIN, LEDS_YELLOW_PIN) ;
-			break ;
-	}
+inline void ledsTurnOn1() {
+	GPIOPinWrite(GPIO_PORTD_BASE, LEDS_WHITE_PIN, LEDS_WHITE_PIN) ;
+	topStruct.led1State = true ;
 }
 
-void ledsTurnOff(uint8_t whichLed) {
-	switch(whichLed) {
-		case LEDS_WHITE:
-			GPIOPinWrite(GPIO_PORTD_BASE, LEDS_WHITE_PIN, 0) ;
-			break ;
-		case LEDS_RED :
-			GPIOPinWrite(GPIO_PORTA_BASE, LEDS_RED_PIN, 0) ;
-			break ;
-		case LEDS_YELLOW :
-			GPIOPinWrite(GPIO_PORTA_BASE, LEDS_YELLOW_PIN, 0) ;
-			break ;
+inline void ledsTurnOn3() {
+	GPIOPinWrite(GPIO_PORTA_BASE, LEDS_RED_PIN, LEDS_RED_PIN) ;
+	topStruct.led3State = true ;
+}
+
+inline void ledsTurnOn2() {
+	GPIOPinWrite(GPIO_PORTA_BASE, LEDS_YELLOW_PIN, LEDS_YELLOW_PIN) ;
+	topStruct.led2State = true ;
+}
+
+inline void ledsTurnOff1() {
+	GPIOPinWrite(GPIO_PORTD_BASE, LEDS_WHITE_PIN, 0) ;
+	topStruct.led1State = false ;
+}
+
+inline void ledsTurnOff3() {
+	GPIOPinWrite(GPIO_PORTA_BASE, LEDS_RED_PIN, 0) ;
+	topStruct.led3State = false ;
+}
+
+inline void ledsTurnOff2() {
+	GPIOPinWrite(GPIO_PORTA_BASE, LEDS_YELLOW_PIN, 0) ;
+	topStruct.led2State = false ;
+}
+
+inline void buzTurnOn() {
+	GPIOPinWrite(BUZ_BASE, BUZ_PIN, BUZ_PIN) ;
+	topStruct.buzState = true ;
+}
+
+inline void buzTurnOff() {
+	GPIOPinWrite(BUZ_BASE, BUZ_PIN, 0) ;
+	topStruct.buzState = false ;
+}
+
+inline void buzPeriodicalOn() {
+	topStruct.buzPeriodical = true ;
+}
+
+inline void buzPeriodicalOff() {
+	topStruct.buzPeriodical = false ;
+}
+
+inline void ledsPeriodical2On() {
+	topStruct.led2Periodical = true ;
+}
+
+inline void ledsPeriodical2Off() {
+	topStruct.led2Periodical = false ;
+}
+
+
+void utilsTimInt() {
+	TimerIntClear(TOPUTILS_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+
+	if(topStruct.buzPeriodical) {
+		if(topStruct.buzState)
+			buzTurnOff() ;
+		else
+			buzTurnOn() ;
 	}
+
+	if(topStruct.led2Periodical){
+		if(topStruct.led2State)
+			ledsTurnOff2() ;
+		else
+			ledsTurnOn2() ;
+	}
+
 }
 
 void utilsInit() {
-
 	// LEDS
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD) ;
@@ -69,31 +132,57 @@ void utilsInit() {
 	GPIOPinTypeGPIOOutput(BUZ_BASE, BUZ_PIN) ;
 
 	// BUTTONS
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC) ;
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF) ;
+	SysCtlPeripheralEnable(BTN1_PERIPH) ;
+	SysCtlPeripheralEnable(BTN2_PERIPH) ;
 	SysCtlDelay(3) ;
 
-	GPIOPinTypeGPIOInput(GPIO_PORTC_BASE, GPIO_PIN_7) ;
-	GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4) ;
-	GPIOPadConfigSet(GPIO_PORTC_BASE, GPIO_PIN_7, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD) ;
-	GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_4, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD) ;
+	GPIOPinTypeGPIOInput(BTN1_BASE, BTN1_PIN) ;
+	GPIOPinTypeGPIOInput(BTN2_BASE, BTN2_PIN) ;
+	GPIOPadConfigSet(BTN1_BASE, BTN1_PIN, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD) ;
+	GPIOPadConfigSet(BTN2_BASE, BTN2_PIN, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD) ;
+
+	//Timer
+	SysCtlPeripheralEnable(TOPUTILS_TIMER_PERIPH) ;
+	SysCtlDelay(3) ;
+
+	TimerConfigure(TOPUTILS_TIMER_BASE, TIMER_CFG_PERIODIC) ;
+	TimerLoadSet(TOPUTILS_TIMER_BASE, TIMER_A, TOPUTILS_TIMER_PERIOD) ;
+	TimerIntRegister(TOPUTILS_TIMER_BASE, TIMER_A, utilsTimInt) ;
+	TimerIntEnable(TOPUTILS_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+	TimerIntClear(TOPUTILS_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+	TimerEnable(TOPUTILS_TIMER_BASE, TIMER_BOTH) ;
 }
 
-inline void buzTurnOn() {
-	GPIOPinWrite(BUZ_BASE, BUZ_PIN, BUZ_PIN) ;
+inline int32_t btn1isPushed() {
+	return GPIOPinRead(BTN1_BASE, BTN1_PIN) ;
 }
 
-inline void buzTurnOff() {
-	GPIOPinWrite(BUZ_BASE, BUZ_PIN, 0) ;
+inline int32_t btn2isPushed() {
+	return GPIOPinRead(BTN2_BASE, BTN2_PIN) ;
 }
 
-void buzSequence(uint32_t duration, uint32_t repeatCycle) {
-	// TODO : maybe task scheduler?
+void btn1Interrupt() {
+	GPIOIntClear(BTN1_BASE, BTN1_INT_PIN) ;
+	topStruct.pFn1() ;
 }
 
-int32_t btn1isPushed() {
-	return GPIOPinRead(GPIO_PORTC_BASE, GPIO_PIN_7) ;
+void btn2Interrupt() {
+	GPIOIntClear(BTN2_BASE, BTN2_INT_PIN) ;
+	topStruct.pFn2() ;
 }
-int32_t btn2isPushed() {
-	return GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_4) ;
+
+void btn1IntRegister(void (*pFn1)()) {
+	GPIOIntRegister(BTN1_BASE, btn1Interrupt) ;
+	GPIOIntTypeSet(BTN1_BASE, BTN1_PIN, GPIO_RISING_EDGE) ;
+	GPIOIntEnable(BTN1_BASE, BTN1_INT_PIN) ;
+	GPIOIntClear(BTN1_BASE, BTN1_INT_PIN) ;
+	topStruct.pFn1 = pFn1 ;
+}
+
+void btn2IntRegister(void (*pFn2)()) {
+	GPIOIntRegister(BTN2_BASE, btn2Interrupt) ;
+	GPIOIntTypeSet(BTN2_BASE, BTN2_PIN, GPIO_RISING_EDGE) ;
+	GPIOIntEnable(BTN2_BASE, BTN2_INT_PIN) ;
+	GPIOIntClear(BTN2_BASE, BTN2_INT_PIN) ;
+	topStruct.pFn2 = pFn2 ;
 }

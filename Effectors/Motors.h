@@ -18,27 +18,27 @@ typedef enum {
 void motorsInit() ;
 void motorsEnable() ;
 void motorsDisable() ;
-void motorsSetupM0(MOTORS_SETUP motorsSetup) ;
-void motorsSetupM1(MOTORS_SETUP motorsSetup) ;
+void motorsSetupML(MOTORS_SETUP motorsSetup) ;
+void motorsSetupMR(MOTORS_SETUP motorsSetup) ;
 
-void motorsM0PwmSet(uint32_t u32pwmVal) ;
-void motorsM1PwmSet(uint32_t u32pwmVal) ;
+void motorsMLPwmSet(uint32_t u32pwmVal) ;
+void motorsMRPwmSet(uint32_t u32pwmVal) ;
 
-#define motorsM0In1Set()	(GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, GPIO_PIN_3))
-#define motorsM0In2Set()	(GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3))
-#define motorsM0In1Clr()	(GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, 0) )
-#define motorsM0In2Clr()	(GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0))
+#define motorsMLIn1Set()	(GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, GPIO_PIN_3))
+#define motorsMLIn2Set()	(GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3))
+#define motorsMLIn1Clr()	(GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, 0) )
+#define motorsMLIn2Clr()	(GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0))
 
-#define motorsM1In1Set()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_1, GPIO_PIN_1))
-#define motorsM1In2Set()	(GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_3, GPIO_PIN_3))
-#define motorsM1In1Clr()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_1, 0))
-#define motorsM1In2Clr()	(GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_3, 0))
+#define motorsMRIn1Set()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_1, GPIO_PIN_1))
+#define motorsMRIn2Set()	(GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_3, GPIO_PIN_3))
+#define motorsMRIn1Clr()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_1, 0))
+#define motorsMRIn2Clr()	(GPIOPinWrite(GPIO_PORTD_BASE, GPIO_PIN_3, 0))
 
-#define motorsM0StbySet()	(GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_PIN_4) )
-#define motorsM0StbyClr() 	(GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_4, 0))
+#define motorsMLStbySet()	(GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_PIN_4) )
+#define motorsMLStbyClr() 	(GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_4, 0))
 
-#define motorsM1StbySet()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_2, GPIO_PIN_2))
-#define motorsM1StbyClr()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_2, 0))
+#define motorsMRStbySet()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_2, GPIO_PIN_2))
+#define motorsMRStbyClr()	(GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_2, 0))
 
 // MOT_0_PWM	// PF2 	- RightPWM, M1PWM6
 // MOT_0_STBY  	// PC4	- Right!Stby

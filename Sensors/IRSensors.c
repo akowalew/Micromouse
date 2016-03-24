@@ -47,10 +47,10 @@ typedef struct  {
 } SensConf ;
 
 const SensConf sensorsTable[IRSEN_ADC_SENSORS_NUM] = {
-		{ IRSEN_ADC_CH_Q1, PWM1_BASE, PWM_OUT_5 , PWM_OUT_5_BIT } ,
-		{ IRSEN_ADC_CH_Q2, PWM0_BASE, PWM_OUT_0 , PWM_OUT_0_BIT } ,
-		{ IRSEN_ADC_CH_Q3, PWM0_BASE, PWM_OUT_1 , PWM_OUT_1_BIT } ,
-		{ IRSEN_ADC_CH_Q4, PWM1_BASE, PWM_OUT_4 , PWM_OUT_4_BIT }
+		{ IRSEN_ADC_CH_Q3, PWM1_BASE, PWM_OUT_5 , PWM_OUT_5_BIT } ,
+		{ IRSEN_ADC_CH_Q2, PWM1_BASE, PWM_OUT_4 , PWM_OUT_4_BIT } ,
+		{ IRSEN_ADC_CH_Q1, PWM0_BASE, PWM_OUT_1 , PWM_OUT_1_BIT } ,
+		{ IRSEN_ADC_CH_Q4, PWM0_BASE, PWM_OUT_0 , PWM_OUT_0_BIT }
 };
 
 void irSenTimInt() ;
@@ -60,7 +60,17 @@ inline uint32_t irSenGetVal(uint8_t whichSensor) {
 	return irSenStruct.values[whichSensor] ;
 }
 
+void irSenGetAllVals(uint32_t tab[IRSEN_ADC_SENSORS_NUM]) {
+	uint8_t i ;
+	for(i = 0 ; i < IRSEN_ADC_SENSORS_NUM ; i++)
+		tab[i] = irSenStruct.values[i] ;
+}
+
 void irSenInit() {
+
+	irSenStruct.i = 0 ;
+	irSenStruct.irPwmVal = IRSEN_DEFAULT_PWM ;
+
 	// init PWM channels
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM1) ;
@@ -69,14 +79,14 @@ void irSenInit() {
 	// IR1, IR4
 	PWMGenConfigure(PWM1_BASE, PWM_GEN_2, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
 	PWMGenPeriodSet(PWM1_BASE, PWM_GEN_2, IRSEN_PWM_PERIOD) ;
-	PWMPulseWidthSet(PWM1_BASE, PWM_OUT_5, 1) ;
-	PWMPulseWidthSet(PWM1_BASE, PWM_OUT_4, 1) ;
+	PWMPulseWidthSet(PWM1_BASE, PWM_OUT_5, irSenStruct.irPwmVal) ;
+	PWMPulseWidthSet(PWM1_BASE, PWM_OUT_4, irSenStruct.irPwmVal) ;
 
 	// IR2, IR3
 	PWMGenConfigure(PWM0_BASE, PWM_GEN_0, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
 	PWMGenPeriodSet(PWM0_BASE, PWM_GEN_0, IRSEN_PWM_PERIOD) ;
-	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, 1) ;
-	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, 1) ;
+	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_0, irSenStruct.irPwmVal) ;
+	PWMPulseWidthSet(PWM0_BASE, PWM_OUT_1, irSenStruct.irPwmVal) ;
 
 	// GPIO in PWM mode
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF) ;
@@ -113,7 +123,7 @@ void irSenInit() {
 	SysCtlPeripheralEnable(IRSEN_TIMER_PERIPH) ;
 	SysCtlDelay(3) ;
 
-	TimerConfigure(IRSEN_TIMER_BASE, TIMER_CFG_ONE_SHOT) ;
+	TimerConfigure(IRSEN_TIMER_BASE, TIMER_CFG_PERIODIC) ;
 	TimerIntRegister(IRSEN_TIMER_BASE, TIMER_BOTH, irSenTimInt) ;
 	TimerLoadSet(IRSEN_TIMER_BASE, TIMER_A, IRSEN_TIMER_LD_VAL) ;
 	TimerMatchSet(IRSEN_TIMER_BASE, TIMER_A, IRSEN_TIMER_LD_VAL) ;
@@ -131,8 +141,6 @@ void irSenInit() {
 	TimerControlTrigger(IRSEN_TIMER_DELAY_BASE, TIMER_A, true) ;
 	TimerLoadSet(IRSEN_TIMER_DELAY_BASE, TIMER_A, IRSEN_TIMER_DELAY_LD_VAL) ;
 
-	irSenStruct.i = 0 ;
-	irSenStruct.irPwmVal = 200 ;
 }
 
 void irSenEnable() {
@@ -175,6 +183,14 @@ void irSenDisable() {
 	TimerIntDisable(IRSEN_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
 }
 
+/**
+ * Long period Timer interrupt procedure
+ *
+ * This code is executed when long period Timer has reached its timeout
+ * First, current IR led is powered on
+ * Then, we're setting up current channel for sensor
+ * At the end, short delay Timer is enabled to count time for start ADC conversion
+ */
 void irSenTimInt() {
 	TimerIntClear(IRSEN_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
 
@@ -186,11 +202,6 @@ void irSenTimInt() {
 			sensorsTable[i].sensorPwmOutBitNum,
 			true
 	) ;
-	PWMPulseWidthSet(
-			sensorsTable[i].sensorPwmBase,
-			sensorsTable[i].sensorPwmOutNum,
-			irSenStruct.irPwmVal
-	) ;
 
 	// configure current Channel
 	ADCSequenceStepConfigure(
@@ -199,43 +210,46 @@ void irSenTimInt() {
 			IRSEN_ADC_STEP_NUM,
 			ADC_CTL_END | ADC_CTL_IE | sensorsTable[i].sensorAdcCh ) ;
 
-	UARTprintf("s\n") ;
-
 	// start the delay timer
 	TimerDisable(IRSEN_TIMER_DELAY_BASE, TIMER_BOTH) ;
 	TimerEnable(IRSEN_TIMER_DELAY_BASE, TIMER_BOTH) ;
 }
 
+/**
+ * ADC interrupt procedure
+ *
+ * This code is executed when ADC conversion is completed
+ * At First, program has to update table with values od ADC
+ * Secondly, current IR diode must be switched off
+ * At the end, index of current sensor is icremented
+ *
+ *
+ */
 void irSenAdcInt() {
 	ADCIntClear(IRSEN_ADC_BASE, IRSEN_ADC_SEQ_NUM) ;
 
+	// get the current index copy and increment original
+	uint8_t i = irSenStruct.i++ ;
+
+	// save data from sensor
 	ADCSequenceDataGet(
 			IRSEN_ADC_BASE,
 			IRSEN_ADC_SEQ_NUM,
-			&irSenStruct.values[irSenStruct.i]) ;
+			&irSenStruct.values[i] ) ;
 
-/*
 	// code to Disable IR diode
 	PWMOutputState(
-			sensorsTable[irSenStruct.i].sensorPwmBase,
-			sensorsTable[irSenStruct.i].sensorPwmOutBitNum,
+			sensorsTable[i].sensorPwmBase,
+			sensorsTable[i].sensorPwmOutBitNum,
 			false
 	) ;
-*/
-	UARTprintf("e\n") ;
-	UARTprintf("%d %d %d %d\n",
-			irSenGetVal(0),
-			irSenGetVal(1),
-			irSenGetVal(2),
-			irSenGetVal(3)
-			) ;
 
-	if(irSenStruct.i++ == 3)
+	// if there is another sensors to check, run once again irSenTimInt procedure
+	// if not, stop and wait for next trigger by long period Timer
+	if(i == 4)
 		irSenStruct.i = 0 ;
-
-	// start the main timer again
-	TimerDisable(IRSEN_TIMER_BASE, TIMER_BOTH) ;
-	TimerEnable(IRSEN_TIMER_BASE, TIMER_BOTH) ;
+	else
+		irSenTimInt() ;
 }
 
 #endif /* SENSORS_IRSENSORS_C_ */
