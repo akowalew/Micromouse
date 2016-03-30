@@ -23,6 +23,7 @@
 #include "Encoders.h"
 #include "../uartstdio.h"
 
+/*
 void qei0Int() {
 	QEIIntClear(QEI0_BASE, QEI_INTTIMER) ;
 
@@ -34,6 +35,7 @@ void qei1Int() {
 
 	//UARTprintf("Q1 %d %d %d\n", QEIPositionGet(QEI1_BASE), QEIVelocityGet(QEI1_BASE),  QEIDirectionGet(QEI1_BASE)) ;
 }
+*/
 
 uint32_t encRGetPos() 	{ return QEIPositionGet(QEI0_BASE);}
 uint32_t encLGetPos() 	{return QEIPositionGet(QEI1_BASE);}
@@ -67,8 +69,9 @@ void encInit() {
 	QEIVelocityConfigure(QEI0_BASE, QEI_VELDIV_1, ENC_VELOCITY_PERIOD) ;
 	QEIVelocityConfigure(QEI1_BASE, QEI_VELDIV_1, ENC_VELOCITY_PERIOD) ;
 
+	/*
 	QEIIntRegister(QEI0_BASE, qei0Int) ;
-	QEIIntRegister(QEI1_BASE, qei1Int) ;
+	QEIIntRegister(QEI1_BASE, qei1Int) ;*/
 }
 
 void encEnable() {
@@ -78,11 +81,12 @@ void encEnable() {
 	QEIVelocityEnable(QEI0_BASE) ;
 	QEIVelocityEnable(QEI1_BASE) ;
 
+	/*
 	QEIIntEnable(QEI0_BASE, QEI_INTTIMER) ;
 	QEIIntClear(QEI0_BASE, QEI_INTTIMER) ;
 
 	QEIIntEnable(QEI1_BASE, QEI_INTTIMER) ;
-	QEIIntClear(QEI1_BASE, QEI_INTTIMER) ;
+	QEIIntClear(QEI1_BASE, QEI_INTTIMER) ; */
 }
 
 void encDisable() {
@@ -91,5 +95,4 @@ void encDisable() {
 
 	QEIVelocityDisable(QEI0_BASE) ;
 	QEIVelocityDisable(QEI1_BASE) ;
-
 }

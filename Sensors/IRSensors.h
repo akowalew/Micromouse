@@ -26,8 +26,6 @@
 	----	Remember that PF0 is locked pin.
  */
 
-
-
 #define IRSEN_PWM_PERIOD	400
 #define IRSEN_DEFAULT_PWM	300
 // Frequency of PWM can be calculated : 80MHz / IRSEN_PWM_PERIOD(400) = 0.05MHz = 50kHz
