@@ -12,7 +12,9 @@ void encInit() ;
 void encEnable() ;
 void encDisable() ;
 
-#define ENC_VELOCITY_PERIOD	8000000
+// 10 ms period between measures
+#define ENC_VELOCITY_PERIOD	800000
+
 #define ENC_MAX_COUNT	3999
 
 uint32_t encRGetPos() ;

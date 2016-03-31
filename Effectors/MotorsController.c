@@ -12,11 +12,17 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
 #include "driverlib/fpu.h"
+#include "../ustdlib.h"
+
+#include "../uartstdio.h"
+#include "../TivaPeriphs/UsbUart.h"
+#include "../Sensors/Encoders.h"
+#include "../Effectors/Motors.h"
 
 struct {
 
-	pidIn_t velocityRefValLeft;
-	pidIn_t velocityRefValRight;
+	pidIn_t velSetPointLeft;
+	pidIn_t velSetPointRight;
 
 	PidStruct pidStructLeft ;
 	PidStruct pidStructRight ;
@@ -43,20 +49,31 @@ pidOut_t pidIteration(pidIn_t setPoint, pidIn_t processValue, PidStruct * pidSt)
 	return pTerm + iTerm + dTerm ;
 }
 
-void motVelocitySetPointLeft(uint32_t velocityLeftReference) {
-	cntrlSt.velocityRefValLeft = velocityLeftReference ;
+inline void motVelSetPointLeft(uint32_t velocityLeftReference) {
+	cntrlSt.velSetPointLeft = velocityLeftReference ;
 }
 
-void motVelocitySetPointRight(uint32_t velocityRightReference) {
-	cntrlSt.velocityRefValRight = velocityRightReference ;
+inline void motVelSetPointRight(uint32_t velocityRightReference) {
+	cntrlSt.velSetPointRight = velocityRightReference ;
 }
 
+char str[32] ;
 void motCntrlTimeoutInt() {
-	/* TODO :
-	 * Pobierz wartości zadane
-	 * Zadaj je pidowi
-	 * Wykonaj je na silnikach
-	 */
+	TimerIntClear(MOT_CNTRL_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+
+	pidOut_t leftTerm, rightTerm ;
+
+	pidIn_t	leftVel = encLGetVel() ,
+			rightVel = encRGetVel() ;
+
+	leftTerm = pidIteration(cntrlSt.velSetPointLeft, leftVel, &cntrlSt.pidStructLeft);
+	rightTerm = pidIteration(cntrlSt.velSetPointRight, rightVel, &cntrlSt.pidStructRight);
+
+	motorsMLPwmSet(leftTerm);
+	motorsMRPwmSet(rightTerm);
+
+	// print values for Left motor
+	usprintf(str, "%d %d\r\n", leftVel, leftTerm) ;
 }
 
 void motCntrlInit() {
@@ -72,8 +89,8 @@ void motCntrlInit() {
 	FPUEnable() ;
 
 	// configure initial values for PID
-	cntrlSt.velocityRefValLeft = 0 ;
-	cntrlSt.velocityRefValRight = 0 ;
+	cntrlSt.velSetPointLeft = 0 ;
+	cntrlSt.velSetPointRight = 0 ;
 
 	PidStruct tmpl = {0, 0.0, PID_INIT_LEFT_KP, PID_INIT_LEFT_KI, PID_INIT_LEFT_KD, 0, 0} ;
 	cntrlSt.pidStructLeft = tmpl ;

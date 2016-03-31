@@ -18,6 +18,7 @@
 #include "../Sensors/IRSensors.h"
 #include "../Effectors/Motors.h"
 #include "../TivaPeriphs/UsbUart.h"
+#include "../Effectors/MotorsController.h"
 #include "../uartstdio.h"
 
 
@@ -58,7 +59,9 @@ void robotInit() {
 	btn2IntRegister(btn2Int) ;
 
 	usbUartInit() ;
+
 	motorsInit() ;
+	motCntrlInit() ;
 
 	btInit() ;
 	btAddMessage('L', btFunL) ;
@@ -72,18 +75,21 @@ void robotInit() {
 	irSenInit() ;
 	encInit() ;
 
+
 	UARTStdioConfig(1, 115200, 16000000) ;
 }
 
 void robotStart() {
 	irSenEnable() ;
 	motorsEnable() ;
+	motCntrlEnable() ;
 	encEnable() ;
 }
 
 void robotStop() {
 	irSenDisable() ;
 	motorsDisable() ;
+	motCntrlDisable() ;
 	encDisable() ;
 }
 
@@ -94,6 +100,9 @@ void robotProcedure() {
 	ledsTurnOff1() ;
 
 	robotStart() ;
+
+	motVelSetPointLeft(20) ;
+	motVelSetPointRight(20) ;
 
 	while(robotStruct.isRunning) {
 		//SysCtlDelay(8000000) ;

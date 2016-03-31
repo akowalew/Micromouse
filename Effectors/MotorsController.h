@@ -37,10 +37,10 @@ typedef struct {
 
 #define MOT_CNTRL_TIMER_PERIPH	SYSCTL_PERIPH_TIMER4
 #define MOT_CNTRL_TIMER_BASE	TIMER4_BASE
-#define MOT_CNTRL_TIMER_DELAY 	80000
+#define MOT_CNTRL_TIMER_DELAY 	800000
 
-void motVelocitySetPointLeft(pidIn_t velocityLeftSetPoint) ;
-void motVelocitySetPointRight(pidIn_t velocityRightSetPoint) ;
+void motVelSetPointLeft(pidIn_t velocityLeftSetPoint) ;
+void motVelSetPointRight(pidIn_t velocityRightSetPoint) ;
 
 void motCntrlInit() ;
 void motCntrlEnable() ;
