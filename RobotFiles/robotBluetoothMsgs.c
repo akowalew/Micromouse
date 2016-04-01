@@ -21,7 +21,6 @@
 #include "../TivaPeriphs/UsbUart.h"
 #include "../uartstdio.h"
 
-
 #include "inc/hw_types.h"
 #include "inc/hw_memmap.h"
 #include "inc/tm4c123gh6pm.h"
@@ -108,4 +107,12 @@ void btFunI(uint8_t params[BT_TASKS_PARAM_NUM]) {
  */
 void btFunE(uint8_t params[BT_TASKS_PARAM_NUM]) {
 	UARTprintf("E:%d,%d,%d,%d\n", encLGetPos(), encRGetPos(), encLGetVel(), encRGetVel()) ;
+}
+
+void btFunS(uint8_t params[BT_TASKS_PARAM_NUM]) {
+	robotStart() ;
+}
+
+void btFunP(uint8_t params[BT_TASKS_PARAM_NUM]) {
+
 }

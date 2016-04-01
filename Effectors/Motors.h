@@ -57,5 +57,6 @@ void motorsMRPwmSet(uint32_t u32pwmVal) ;
 #define MOT_1_GEN	PWM_GEN_0
 
 #define MOT_PWM_PERIOD	1000
+#define MOT_PWM_0_8_VAL	((MOT_PWM_PERIOD * 8) / 10)
 
 #endif /* EFFECTORS_MOTORS_H_ */

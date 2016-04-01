@@ -33,6 +33,8 @@ void btFunR(uint8_t params[BT_TASKS_PARAM_NUM]);
 void btFunE(uint8_t params[BT_TASKS_PARAM_NUM]);
 void btFunI(uint8_t params[BT_TASKS_PARAM_NUM]);
 void btFunB(uint8_t params[BT_TASKS_PARAM_NUM]);
+void btFunS(uint8_t params[BT_TASKS_PARAM_NUM]);
+void btFunP(uint8_t params[BT_TASKS_PARAM_NUM]);
 
 void motorStop() ;
 
@@ -44,12 +46,11 @@ struct {
 
 
 void btn1Int() {
-	robotStruct.isRunning = false ;
 	robotStop() ;
 }
 
 void btn2Int() {
-	robotStruct.isRunning = true ;
+	robotStart() ;
 }
 
 void robotInit() {
@@ -59,6 +60,7 @@ void robotInit() {
 	btn2IntRegister(btn2Int) ;
 
 	usbUartInit() ;
+	myTimerInit() ;
 
 	motorsInit() ;
 	motCntrlInit() ;
@@ -69,27 +71,33 @@ void robotInit() {
 	btAddMessage('B', btFunB) ;
 	btAddMessage('I', btFunI) ;
 	btAddMessage('E', btFunE) ;
-	batSensInit() ;
+	btAddMessage('S', btFunS) ;
+	btAddMessage('P', btFunP) ;
+ 	batSensInit() ;
 	batSensEnable() ;
 
 	irSenInit() ;
 	encInit() ;
 
-
 	UARTStdioConfig(1, 115200, 16000000) ;
 }
 
-void robotStart() {
+void robotStartOthers() {
 	irSenEnable() ;
 	motorsEnable() ;
 	motCntrlEnable() ;
 	encEnable() ;
 }
 
+void robotStart() {
+	robotStruct.isRunning = true ;
+}
+
 void robotStop() {
+	robotStruct.isRunning = false ;
+	motCntrlDisable() ;
 	irSenDisable() ;
 	motorsDisable() ;
-	motCntrlDisable() ;
 	encDisable() ;
 }
 
@@ -99,15 +107,19 @@ void robotProcedure() {
 	while(!robotStruct.isRunning) ;
 	ledsTurnOff1() ;
 
-	robotStart() ;
+	UARTprintf("Set Point vel = 20") ;
+	motVelSetPointLeft(1) ;
+	motVelSetPointRight(15) ;
 
-	motVelSetPointLeft(20) ;
-	motVelSetPointRight(20) ;
+	robotStartOthers() ;
 
+	uint8_t i = 0 ;
 	while(robotStruct.isRunning) {
-		//SysCtlDelay(8000000) ;
-		//UARTprintf("%d %d %d %d\n", irSenGetVal(0), irSenGetVal(1), irSenGetVal(2), irSenGetVal(3) );
+		myTimerWait(5000) ;
+		break ;
 	}
+
+	robotStop() ;
 }
 
 

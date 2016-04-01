@@ -24,6 +24,9 @@ struct {
 	pidIn_t velSetPointLeft;
 	pidIn_t velSetPointRight;
 
+	MOTORS_SETUP leftSetup ;
+	MOTORS_SETUP rightSetup ;
+
 	PidStruct pidStructLeft ;
 	PidStruct pidStructRight ;
 
@@ -49,17 +52,33 @@ pidOut_t pidIteration(pidIn_t setPoint, pidIn_t processValue, PidStruct * pidSt)
 	return pTerm + iTerm + dTerm ;
 }
 
-inline void motVelSetPointLeft(uint32_t velocityLeftReference) {
-	cntrlSt.velSetPointLeft = velocityLeftReference ;
+inline void motVelSetPointLeft(int32_t velocitySp) {
+	if(velocitySp < 0)
+		cntrlSt.leftSetup = COUNTER_CLOCKWISE ;
+	else
+		cntrlSt.leftSetup = CLOCKWISE ;
+
+	cntrlSt.velSetPointLeft = velocitySp ;
 }
 
-inline void motVelSetPointRight(uint32_t velocityRightReference) {
-	cntrlSt.velSetPointRight = velocityRightReference ;
+inline void motVelSetPointRight(int32_t velocitySp) {
+	if(velocitySp < 0)
+		cntrlSt.rightSetup = COUNTER_CLOCKWISE ;
+	else
+		cntrlSt.rightSetup = CLOCKWISE ;
+
+	cntrlSt.velSetPointRight = velocitySp ;
 }
 
 char str[32] ;
 void motCntrlTimeoutInt() {
 	TimerIntClear(MOT_CNTRL_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+
+
+	/////////////
+	// TODO : what if setPoint value equal 0 ?!?!?!
+	/////////////
+
 
 	pidOut_t leftTerm, rightTerm ;
 
@@ -69,11 +88,35 @@ void motCntrlTimeoutInt() {
 	leftTerm = pidIteration(cntrlSt.velSetPointLeft, leftVel, &cntrlSt.pidStructLeft);
 	rightTerm = pidIteration(cntrlSt.velSetPointRight, rightVel, &cntrlSt.pidStructRight);
 
-	motorsMLPwmSet(leftTerm);
-	motorsMRPwmSet(rightTerm);
+	if(leftTerm > 0) {
+		motorsSetupML(cntrlSt.leftSetup) ;
+		motorsMLPwmSet(leftTerm);
+	}
+	else {
+		if(leftTerm == 0)
+			motorsSetupML(SOFT_STOP) ;
+		else {
+			motorsSetupML(cntrlSt.leftSetup == CLOCKWISE ? COUNTER_CLOCKWISE : CLOCKWISE) ;
+			motorsMLPwmSet(-leftTerm);
+		}
+	}
+
+	if(rightTerm > 0) {
+		motorsSetupMR(cntrlSt.rightSetup) ;
+		motorsMRPwmSet(rightTerm);
+	}
+	else {
+		if(rightTerm == 0)
+			motorsSetupMR(SOFT_STOP) ;
+		else {
+			motorsSetupMR(cntrlSt.rightSetup == CLOCKWISE ? COUNTER_CLOCKWISE : CLOCKWISE) ;
+			motorsMRPwmSet(-rightTerm);
+		}
+	}
 
 	// print values for Left motor
-	usprintf(str, "%d %d\r\n", leftVel, leftTerm) ;
+	usprintf(str, "%d %d %d %d\n", leftVel, leftTerm, rightVel, rightTerm) ;
+	usbUartSendStr(str) ;
 }
 
 void motCntrlInit() {
@@ -108,6 +151,16 @@ void motCntrlEnable() {
 void motCntrlDisable() {
 	TimerDisable(MOT_CNTRL_TIMER_BASE, TIMER_BOTH) ;
 	TimerIntDisable(MOT_CNTRL_TIMER_BASE,TIMER_TIMA_TIMEOUT) ;
+
+	// configure initial values for PID
+	cntrlSt.velSetPointLeft = 0 ;
+	cntrlSt.velSetPointRight = 0 ;
+
+	PidStruct tmpl = {0, 0.0, PID_INIT_LEFT_KP, PID_INIT_LEFT_KI, PID_INIT_LEFT_KD, 0, 0} ;
+	cntrlSt.pidStructLeft = tmpl ;
+
+	PidStruct tmpr = {0, 0.0, PID_INIT_RIGHT_KP, PID_INIT_RIGHT_KI, PID_INIT_RIGHT_KD, 0, 0} ;
+	cntrlSt.pidStructRight = tmpr ;
 }
 
 

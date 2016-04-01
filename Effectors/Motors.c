@@ -147,10 +147,14 @@ void motorsSetupMR(MOTORS_SETUP motorsSetup) {
 }
 
 inline void motorsMLPwmSet(uint32_t u32pwmVal) {
+	if(u32pwmVal > MOT_PWM_0_8_VAL)
+		u32pwmVal = MOT_PWM_0_8_VAL ;
 	PWMPulseWidthSet(MOT_0_BASE, PWM_OUT_6, (u32pwmVal)) ;
 }
 
 inline void motorsMRPwmSet(uint32_t u32pwmVal) {
+	if(u32pwmVal > MOT_PWM_0_8_VAL)
+		u32pwmVal = MOT_PWM_0_8_VAL ;
 	PWMPulseWidthSet(MOT_1_BASE, PWM_OUT_1, (u32pwmVal));
 }
 

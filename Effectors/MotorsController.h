@@ -11,15 +11,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef uint32_t pidOut_t ;	// output value type from PID controller
-typedef uint32_t pidIn_t ;	// input value type to PID controller
+typedef int32_t pidOut_t ;	// output value type from PID controller
+typedef int32_t pidIn_t ;	// input value type to PID controller
 
-#define PID_INIT_LEFT_KP 1.0
+#define PID_INIT_LEFT_KP 20.0
 #define PID_INIT_LEFT_KI 0.0
 #define PID_INIT_LEFT_KD 0.0
 
-#define PID_INIT_RIGHT_KP 1.0
-#define PID_INIT_RIGHT_KI 0.0
+#define PID_INIT_RIGHT_KP 2.0
+#define PID_INIT_RIGHT_KI 1.0
 #define PID_INIT_RIGHT_KD 0.0
 
 typedef struct {
