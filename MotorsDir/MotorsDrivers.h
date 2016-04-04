@@ -1,28 +1,11 @@
 /*
- * Motors.h
+ * MotorsDrivers.h
  *
- *  Created on: 15 mar 2016
+ *  Created on: 4 kwi 2016
  *      Author: akowalew
  */
 
-#ifndef EFFECTORS_MOTORS_H_
-#define EFFECTORS_MOTORS_H_
-
-typedef enum {
-	SOFT_STOP,
-	COUNTER_CLOCKWISE,
-	CLOCKWISE,
-	HARD_STOP
-} MOTORS_SETUP;
-
-void motorsInit() ;
-void motorsEnable() ;
-void motorsDisable() ;
-void motorsSetupML(MOTORS_SETUP motorsSetup) ;
-void motorsSetupMR(MOTORS_SETUP motorsSetup) ;
-
-void motorsMLPwmSet(uint32_t u32pwmVal) ;
-void motorsMRPwmSet(uint32_t u32pwmVal) ;
+#include "Motors.h"
 
 #define motorsMLIn1Set()	(GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, GPIO_PIN_3))
 #define motorsMLIn2Set()	(GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3))
@@ -59,4 +42,14 @@ void motorsMRPwmSet(uint32_t u32pwmVal) ;
 #define MOT_PWM_PERIOD	1000
 #define MOT_PWM_0_8_VAL	((MOT_PWM_PERIOD * 8) / 10)
 
-#endif /* EFFECTORS_MOTORS_H_ */
+void motorsDriversInit() ;
+void motorsDriversEnable() ;
+void motorsDriversDisable() ;
+
+void motorsSetupML(MOTORS_SETUP motorsSetup) ;
+void motorsSetupMR(MOTORS_SETUP motorsSetup) ;
+
+void motorsMLPwmSet(uint32_t u32pwmVal) ;
+void motorsMRPwmSet(uint32_t u32pwmVal) ;
+
+

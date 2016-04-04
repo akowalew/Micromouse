@@ -5,6 +5,8 @@
  *      Author: akowalew
  */
 
+#include "../MotorsDir/Encoders.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -20,7 +22,6 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/qei.h"
 
-#include "Encoders.h"
 #include "../uartstdio.h"
 
 /*
@@ -37,10 +38,10 @@ void qei1Int() {
 }
 */
 
-uint32_t encRGetPos() 	{ return QEIPositionGet(QEI0_BASE);}
-uint32_t encLGetPos() 	{return QEIPositionGet(QEI1_BASE);}
-uint32_t encRGetVel() 	{ return QEIVelocityGet(QEI0_BASE);}
-uint32_t encLGetVel()	{ return QEIVelocityGet(QEI1_BASE);}
+uint32_t encRGetPos() 	{ return QEIPositionGet(QEI0_BASE); }
+uint32_t encLGetPos() 	{ return QEIPositionGet(QEI1_BASE); }
+int32_t encRGetVel() 	{ return QEIVelocityGet(QEI0_BASE) * QEIDirectionGet(QEI0_BASE) ;}
+int32_t encLGetVel()	{ return QEIVelocityGet(QEI1_BASE) * QEIDirectionGet(QEI1_BASE) ;}
 
 void encInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_QEI0) ;
@@ -69,9 +70,8 @@ void encInit() {
 	QEIVelocityConfigure(QEI0_BASE, QEI_VELDIV_1, ENC_VELOCITY_PERIOD) ;
 	QEIVelocityConfigure(QEI1_BASE, QEI_VELDIV_1, ENC_VELOCITY_PERIOD) ;
 
-	/*
-	QEIIntRegister(QEI0_BASE, qei0Int) ;
-	QEIIntRegister(QEI1_BASE, qei1Int) ;*/
+	QEIPositionSet(QEI0_BASE, 0) ;
+	QEIPositionSet(QEI1_BASE, 0) ;
 }
 
 void encEnable() {
@@ -80,13 +80,6 @@ void encEnable() {
 
 	QEIVelocityEnable(QEI0_BASE) ;
 	QEIVelocityEnable(QEI1_BASE) ;
-
-	/*
-	QEIIntEnable(QEI0_BASE, QEI_INTTIMER) ;
-	QEIIntClear(QEI0_BASE, QEI_INTTIMER) ;
-
-	QEIIntEnable(QEI1_BASE, QEI_INTTIMER) ;
-	QEIIntClear(QEI1_BASE, QEI_INTTIMER) ; */
 }
 
 void encDisable() {
@@ -95,4 +88,7 @@ void encDisable() {
 
 	QEIVelocityDisable(QEI0_BASE) ;
 	QEIVelocityDisable(QEI1_BASE) ;
+
+	QEIPositionSet(QEI0_BASE, 0) ;
+	QEIPositionSet(QEI1_BASE, 0) ;
 }

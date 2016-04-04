@@ -22,6 +22,8 @@
 
 #include "Bluetooth.h"
 
+#include "../uartstdio.h"
+
 struct {
 	uint8_t array[BT_TASKS_PARAM_NUM + 1] ;
 	void (*pFn[BT_TASKS_MAX_NUM])(uint8_t[BT_TASKS_PARAM_NUM]) ;
@@ -44,26 +46,24 @@ void btInterrupt() {
 	UARTIntClear(BT_UART_BASE, UART_INT_RX) ;
 
 	uint8_t i ;
-
 	while(1) {
 		i = 0 ;
 		while(UARTCharsAvail(BT_UART_BASE) && (i < (BT_TASKS_PARAM_NUM + 1))) {
 			btStruct.array[i++] = UARTCharGetNonBlocking(BT_UART_BASE);	// without overflow control
-			/*if(UARTRxErrorGet(BT_UART_BASE))
-				UARTprintf("!") ;*/
 		}
 
 		if(i < (BT_TASKS_PARAM_NUM+1)) // nie skompletowano polecenia
 			break ;
 
-		//UARTprintf("%c%c%c%c\n", tmpArray[0], tmpArray[1], tmpArray[2], tmpArray[3]) ;
+		if(btStruct.array[0] >= BT_TASKS_MAX_NUM) {
+			UARTprintf("Bad command!") ;
+			continue ;
+		}
 
 		if(btStruct.pFn[btStruct.array[0]] != 0) {
 			btStruct.pFn[btStruct.array[0]](btStruct.array+1) ; // wywołanie funkcji z tymi argumentami
 		}
 	}
-
-
 }
 
 /**

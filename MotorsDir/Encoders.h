@@ -5,8 +5,10 @@
  *      Author: akowalew
  */
 
-#ifndef SENSORS_ENCODERS_H_
-#define SENSORS_ENCODERS_H_
+#ifndef MOTORSDIR_ENCODERS_H_
+#define MOTORSDIR_ENCODERS_H_
+
+#include <stdint.h>
 
 void encInit() ;
 void encEnable() ;
@@ -19,7 +21,7 @@ void encDisable() ;
 
 uint32_t encRGetPos() ;
 uint32_t encLGetPos() ;
-uint32_t encRGetVel() ;
-uint32_t encLGetVel() ;
+int32_t encRGetVel() ;
+int32_t encLGetVel() ;
 
-#endif /* SENSORS_ENCODERS_H_ */
+#endif /* MOTORSDIR_ENCODERS_H_ */

@@ -22,7 +22,7 @@
 #define BT_BAUD					115200
 #define BT_BUF_SZ				12
 
-#define BT_TASKS_MAX_NUM		255
+#define BT_TASKS_MAX_NUM		0x20
 #define BT_TASKS_PARAM_NUM		3
 
 void btInit(void) ;

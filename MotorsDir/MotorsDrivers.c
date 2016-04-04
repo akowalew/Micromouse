@@ -1,7 +1,7 @@
 /*
- * Motors.c
+ * MotorsDrivers.c
  *
- *  Created on: 15 mar 2016
+ *  Created on: 4 kwi 2016
  *      Author: akowalew
  */
 #include <stdint.h>
@@ -19,9 +19,10 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/pwm.h"
 
-#include "Motors.h"
 
-void motorsInit() {
+#include "MotorsDrivers.h"
+
+void motorsDriversInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD) ;
@@ -50,23 +51,15 @@ void motorsInit() {
 	GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_2 | GPIO_PIN_1) ;
 	GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3) ;
 
-	// initial gpio status
-
-	motorsSetupML(SOFT_STOP) ;
-	motorsSetupMR(SOFT_STOP) ;
-
 	// PWM Configuration
 
 	PWMGenConfigure(MOT_0_BASE, MOT_0_GEN, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC) ;
 	PWMGenConfigure(MOT_1_BASE, MOT_1_GEN, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC) ;
 	PWMGenPeriodSet(MOT_0_BASE, MOT_0_GEN, MOT_PWM_PERIOD) ;
 	PWMGenPeriodSet(MOT_1_BASE, MOT_1_GEN, MOT_PWM_PERIOD) ;
-
-	motorsMLPwmSet(1) ;
-	motorsMRPwmSet(1) ;
 }
 
-void motorsEnable() {
+void motorsDriversEnable() {
 	PWMGenEnable(MOT_0_BASE, MOT_0_GEN) ;
 	PWMGenEnable(MOT_1_BASE, MOT_1_GEN) ;
 
@@ -77,7 +70,7 @@ void motorsEnable() {
 	PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT | PWM_OUT_1_BIT, true) ;
 }
 
-void motorsDisable() {
+void motorsDriversDisable() {
 	PWMGenDisable(MOT_0_BASE, MOT_0_GEN) ;
 	PWMGenDisable(MOT_1_BASE, MOT_1_GEN) ;
 
@@ -87,6 +80,7 @@ void motorsDisable() {
 
 	PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT | PWM_OUT_1_BIT, false) ;
 }
+
 
 void motorsSetupML(MOTORS_SETUP motorsSetup) {
 	switch(motorsSetup) {
@@ -110,9 +104,7 @@ void motorsSetupML(MOTORS_SETUP motorsSetup) {
 		break ;
 	case HARD_STOP :
 		// PWM = 0%
-		// TODO : is it right ?
-		PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT, false) ;
-		PWMOutputState(MOT_1_BASE, PWM_OUT_1_BIT, false) ;
+		motorsMLPwmSet(1) ;
 		break ;
 	}
 }
@@ -139,22 +131,23 @@ void motorsSetupMR(MOTORS_SETUP motorsSetup) {
 		break ;
 	case HARD_STOP :
 		// PWM = 0%
-		// TODO : is it right ?
-		PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT, false) ;
-		PWMOutputState(MOT_1_BASE, PWM_OUT_1_BIT, false) ;
+		motorsMRPwmSet(1) ;
 		break ;
 	}
 }
 
-inline void motorsMLPwmSet(uint32_t u32pwmVal) {
+ void motorsMLPwmSet(uint32_t u32pwmVal) {
 	if(u32pwmVal > MOT_PWM_0_8_VAL)
 		u32pwmVal = MOT_PWM_0_8_VAL ;
+	else if(u32pwmVal == 0)
+		u32pwmVal = 1;
 	PWMPulseWidthSet(MOT_0_BASE, PWM_OUT_6, (u32pwmVal)) ;
 }
 
-inline void motorsMRPwmSet(uint32_t u32pwmVal) {
+ void motorsMRPwmSet(uint32_t u32pwmVal) {
 	if(u32pwmVal > MOT_PWM_0_8_VAL)
 		u32pwmVal = MOT_PWM_0_8_VAL ;
+	else if(u32pwmVal == 0)
+		u32pwmVal = 1;
 	PWMPulseWidthSet(MOT_1_BASE, PWM_OUT_1, (u32pwmVal));
 }
-

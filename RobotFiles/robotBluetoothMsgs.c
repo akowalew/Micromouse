@@ -1,3 +1,4 @@
+
 /*
  * robotBluetoothMsgs.c
  *
@@ -15,9 +16,8 @@
 #include "../Utilities/Bluetooth.h"
 #include "driverlib/sysctl.h"
 #include "../Sensors/BatterySensor.h"
-#include "../Sensors/Encoders.h"
 #include "../Sensors/IRSensors.h"
-#include "../Effectors/Motors.h"
+#include "../MotorsDir/Motors.h"
 #include "../TivaPeriphs/UsbUart.h"
 #include "../uartstdio.h"
 
@@ -26,48 +26,23 @@
 #include "inc/tm4c123gh6pm.h"
 #include "driverlib/uart.h"
 #include "inc/hw_uart.h"
+#include "../MotorsDir/Encoders.h"
 
+#include "robotBluetoothMsgs.h"
 
-void btFunL(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	//UARTprintf("L %d %d %d\n", params[0], params[1], params[2] ) ;
+void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]) {
+	// params[0] : 0 - LEFT MOTOR, 1 - RIGHT MOTOR
+	// params[1] : 1 - LESS THAN 0 VELOCITY, 0 - GREATER THAN 0 VELOCITY
+	// params[2] : VELOCITY VALUE
 
-	int val = params[0] ;
-	if(val >= 128) {
-		motorsSetupML(CLOCKWISE) ;
-		val -= 128 ;
-		if(val == 0)
-			motorsSetupML(SOFT_STOP) ;
-		val *= 1000 ;
-		val /= 128 ;
-		motorsMLPwmSet(val) ;
-	} else {
-		motorsSetupML(COUNTER_CLOCKWISE) ;
-		val = 128 - val ;
-		val *= 1000 ;
-		val /= 128 ;
-		motorsMLPwmSet(val) ;
-	}
+	int32_t val = (params[1] == 1) ? -params[2] : params[2] ;
+	val *= 40 ;
+	val /= 255 ;
 
-}
-
-void btFunR(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	//UARTprintf("R %d %d %d\n", params[0], params[1], params[2] ) ;
-
-	int val = params[0] ;
-	if(val >= 128) {
-		motorsSetupMR(CLOCKWISE) ;
-		val -= 128 ;
-		if(val == 0)
-			motorsSetupMR(SOFT_STOP) ;
-		val *= 1000 ;
-		val /= 128 ;
-		motorsMRPwmSet(val) ;
-	} else {
-		motorsSetupMR(COUNTER_CLOCKWISE) ;
-		val = 128 - val ;
-		val *= 1000 ;
-		val /= 128 ;
-		motorsMRPwmSet(val) ;
+	if(params[0] == 0) { // LEFT MOTOR
+		motVelSetPointLeft(val) ;
+	} else {	// RIGHT MOTOR
+ 		motVelSetPointRight(val) ;
 	}
 }
 
