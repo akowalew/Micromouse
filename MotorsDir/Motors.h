@@ -25,8 +25,4 @@ void motVelSetPointLeft(int32_t velocityLeftSetPoint) ;
 void motVelSetPointRight(int32_t velocityRightSetPoint) ;
 void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSetPoint) ;
 
-void motCntrlInit() ;
-void motCntrlEnable() ;
-void motCntrlDisable() ;
-
 #endif /* EFFECTORS_MOTORS_H_ */

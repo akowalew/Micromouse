@@ -29,10 +29,7 @@
 #include "../TivaPeriphs/MyTimer.h"
 
 #include "robotBluetoothMsgs.h"
-
-void motorStop() ;
-
-void irStop() ;
+#include "../MotorsDir/MotorsController.h"
 
 struct {
 	volatile bool isRunning ;
@@ -58,14 +55,19 @@ void robotInit() {
 	motorsInit() ;
 
 	btInit() ;
+	btAddMessage(0x06, btFunBothPid) ;
+	btAddMessage(0x07, btFunLPid) ;
+	btAddMessage(0x08, btFunRPid) ;
+	btAddMessage(0x09, btFunStart) ;
 	btAddMessage(0x10, btFunMotor) ;
+#ifdef PID_TESTING
+	btAddMessage(0x05, btFunPidTestConfigure) ;
+#endif
 
  	batSensInit() ;
 	batSensEnable() ;
 
 	irSenInit() ;
-
-	UARTStdioConfig(1, 115200, 16000000) ;
 }
 
 void robotStartOthers() {
@@ -90,8 +92,6 @@ void robotProcedure() {
 	ledsTurnOff1() ;
 
 	pidTestStartTesting() ;
-	motVelSetPointLeft(30) ;
-	motVelSetPointRight(30) ;
 	robotStartOthers() ;
 	while(robotStruct.isRunning) {
 		if(!pidTestIsStillTesting())

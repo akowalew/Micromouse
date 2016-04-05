@@ -11,11 +11,9 @@
 #include <stdint.h>
 
 void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]);
-void btFunE(uint8_t params[BT_TASKS_PARAM_NUM]);
-void btFunI(uint8_t params[BT_TASKS_PARAM_NUM]);
-void btFunB(uint8_t params[BT_TASKS_PARAM_NUM]);
-void btFunS(uint8_t params[BT_TASKS_PARAM_NUM]);
-void btFunP(uint8_t params[BT_TASKS_PARAM_NUM]);
-
+void btFunStart(uint8_t params[BT_TASKS_PARAM_NUM]);
+void btFunLPid(uint8_t params[BT_TASKS_PARAM_NUM]);
+void btFunRPid(uint8_t params[BT_TASKS_PARAM_NUM]);
+void btFunBothPid(uint8_t params[BT_TASKS_PARAM_NUM]);
 
 #endif /* ROBOTFILES_ROBOTBLUETOOTHMSGS_H_ */

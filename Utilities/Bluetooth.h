@@ -29,6 +29,6 @@ void btInit(void) ;
 void btAddMessage(uint8_t opCode, void (*pFn)(uint8_t[BT_TASKS_PARAM_NUM])) ;
 void btDeleteMessage(uint8_t opCode) ;
 
-// #define BT_STDIO
+ #define BT_STDIO
 
 #endif /* BLUETOOTH_H_ */

@@ -29,6 +29,7 @@
 #include "../MotorsDir/Encoders.h"
 
 #include "robotBluetoothMsgs.h"
+#include "../MotorsDir/MotorsController.h"
 
 void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]) {
 	// params[0] : 0 - LEFT MOTOR, 1 - RIGHT MOTOR
@@ -46,48 +47,23 @@ void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]) {
 	}
 }
 
-/**
- * Function to execute message from Bluetooth called 'B'
- * 'B' means : get battery state.
- *
- * this function sends to Bluetooth bat voltages
- */
-void btFunB(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	float tab[3] ;
-	batSensGetMeasures(tab) ;
-	UARTprintf("B:%d,%d,%d\n", (uint32_t)(tab[0] * 100), (uint32_t)(tab[1] * 100), (uint32_t)(tab[2] * 100));
-}
 
-/**
- * Function to execute message from Bluetooth called 'I'
- * 'I' means : get all sensors vals
- *
- * this function sends to Bluetooth ADC values of each sensor
- */
-void btFunI(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	uint32_t tab[IRSEN_ADC_SENSORS_NUM] ;
-	irSenGetAllVals(tab) ;
-	uint8_t i ;
-	UARTprintf("I:") ;
-	for( i = 0 ; i < IRSEN_ADC_SENSORS_NUM ; i++)
-		UARTprintf("%d,", tab[i]) ;
-	UARTprintf("\n") ;
-}
-
-/**
- * Function to execute message from Bluetooth called 'E'
- * 'E' means : get encoders state, both Position and Velocity,
- *
- * This function sends to Bluetooth pos and vel of each encoder.
- */
-void btFunE(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	UARTprintf("E:%d,%d,%d,%d\n", encLGetPos(), encRGetPos(), encLGetVel(), encRGetVel()) ;
-}
-
-void btFunS(uint8_t params[BT_TASKS_PARAM_NUM]) {
+void btFunStart(uint8_t params[BT_TASKS_PARAM_NUM]) {
 	robotStart() ;
 }
 
-void btFunP(uint8_t params[BT_TASKS_PARAM_NUM]) {
+void btFunLPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
+	PidConstants_t tmp = { ((float)(params[0]))/10, ((float)(params[1]))/10, ((float)(params[2]))/10 };
+	motCntrlSetLeftPid(tmp);
+}
 
+void btFunRPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
+	PidConstants_t tmp = {((float)(params[0]))/10, ((float)(params[1]))/10, ((float)(params[2]))/10 };
+	motCntrlSetRightPid(tmp);
+}
+
+void btFunBothPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
+	PidConstants_t tmp = {((float)(params[0])) / 10 , ((float)(params[1]))/10, ((float)(params[2]))/10 };
+	motCntrlSetRightPid(tmp);
+	motCntrlSetLeftPid(tmp);
 }
