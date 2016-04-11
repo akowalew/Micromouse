@@ -7,21 +7,6 @@
 
 #include "MotorsController.h"
 
-#include "inc/tm4c123gh6pm.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_timer.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/timer.h"
-#include "driverlib/fpu.h"
-
-#include "Motors.h"
-#include "MotorsDrivers.h"
-#include "../ustdlib.h"
-
-#include "../uartstdio.h"
-#include "../TivaPeriphs/UsbUart.h"
-#include "Encoders.h"
-
 volatile struct {
 	volatile int32_t velSetPointLeft;
 	volatile int32_t velSetPointRight;

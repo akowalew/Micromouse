@@ -5,8 +5,19 @@
  *      Author: akowalew
  */
 
-#ifndef SENSORS_IRSENSORS_H_
-#define SENSORS_IRSENSORS_H_
+#ifndef ROBOTFILES_SENSORS_IRSENSORS_H_
+#define ROBOTFILES_SENSORS_IRSENSORS_H_
+
+#include "../includeHeader.h"
+
+#include "inc/hw_gpio.h"
+#include "driverlib/pin_map.h"
+
+#include "driverlib/adc.h"
+#include "driverlib/pwm.h"
+#include "driverlib/gpio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/timer.h"
 
 /*
  * 	IR phototransistors ADC pins
@@ -31,8 +42,8 @@
 // Frequency of PWM can be calculated : 80MHz / IRSEN_PWM_PERIOD(400) = 0.05MHz = 50kHz
 
 #define IRSEN_ADC_PERIPH	SYSCTL_PERIPH_ADC1
-#define	IRSEN_ADC_BASE		ADC1_BASE
-#define	IRSEN_ADC_PRIORITY	0
+#define	 IRSEN_ADC_BASE		ADC1_BASE
+#define IRSEN_ADC_PRIORITY	0
 #define IRSEN_ADC_OVERSAMP	8
 #define IRSEN_ADC_SEQ_NUM	3
 #define IRSEN_ADC_CH_Q1		ADC_CTL_CH3
@@ -56,11 +67,10 @@
 
 // 1600 * 12,5ns = 20000 ns = 20 us
 
-
 void irSenInit() ;
 void irSenEnable() ;
 void irSenDisable() ;
 uint32_t irSenGetVal(uint8_t whichSensor) ;
 void irSenGetAllVals(uint32_t tab[IRSEN_ADC_SENSORS_NUM]) ;
 
-#endif /* SENSORS_IRSENSORS_H_ */
+#endif /* ROBOTFILES_SENSORS_IRSENSORS_H_ */

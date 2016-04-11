@@ -5,16 +5,22 @@
  *      Author: akowalew
  */
 
-#ifndef SENSORS_BATTERYSENSOR_H_
-#define SENSORS_BATTERYSENSOR_H_
+#ifndef ROBOTFILES_SENSORS_BATTERYSENSOR_H_
+#define ROBOTFILES_SENSORS_BATTERYSENSOR_H_
 
 /*
  * Battery Sensor
  *
  */
 
-#include <stdbool.h>
-#include <stdint.h>
+#include "../includeHeader.h"
+
+#include "driverlib/adc.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/timer.h"
+
+#include "../Communication/topUtils.h"
 
 // Voltage Divider Vout = Vin * R2 / (R2 + R1)
 
@@ -57,4 +63,4 @@ void batSensDisable() ;
 bool batSensCheckState() ;
 void batSensGetMeasures(float destination[3]) ;
 
-#endif /* SENSORS_BATTERYSENSOR_H_ */
+#endif /* ROBOTFILES_SENSORS_BATTERYSENSOR_H_ */

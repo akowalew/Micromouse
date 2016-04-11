@@ -5,38 +5,7 @@
  *      Author: akowalew
  */
 
-#include "../MotorsDir/Encoders.h"
-
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "inc/hw_gpio.h"
-#include "inc/hw_qei.h"
-
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/qei.h"
-
-#include "../uartstdio.h"
-
-/*
-void qei0Int() {
-	QEIIntClear(QEI0_BASE, QEI_INTTIMER) ;
-
-	//UARTprintf("Q0 %d %d %d\n", QEIPositionGet(QEI0_BASE), QEIVelocityGet(QEI0_BASE), QEIDirectionGet(QEI0_BASE)) ;
-}
-
-void qei1Int() {
-	QEIIntClear(QEI1_BASE, QEI_INTTIMER) ;
-
-	//UARTprintf("Q1 %d %d %d\n", QEIPositionGet(QEI1_BASE), QEIVelocityGet(QEI1_BASE),  QEIDirectionGet(QEI1_BASE)) ;
-}
-*/
+#include "Encoders.h"
 
 uint32_t encRGetPos() 	{ return QEIPositionGet(QEI0_BASE); }
 uint32_t encLGetPos() 	{ return QEIPositionGet(QEI1_BASE); }

@@ -7,23 +7,6 @@
 
 #include "BatterySensor.h"
 
-#include "driverlib/sysctl.h"
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/interrupt.h"
-
-#include "driverlib/adc.h"
-#include "inc/hw_adc.h"
-
-#include "driverlib/timer.h"
-#include "inc/hw_timer.h"
-
-#include "../TivaPeriphs/UsbUart.h"
-
-#include "../Utilities/topUtils.h"
-
 struct {
 	volatile float cell1st, cell2nd, cell1stdiff ;
 	volatile bool batState ;

@@ -5,8 +5,8 @@
  *      Author: akowalew
  */
 
-#ifndef UTILITIES_TOPUTILS_H_
-#define UTILITIES_TOPUTILS_H_
+#ifndef ROBOTFILES_COMMUNICATION_TOPUTILS_H_
+#define ROBOTFILES_COMMUNICATION_TOPUTILS_H_
 
 #include <stdint.h>
 
@@ -80,4 +80,4 @@ void btn2IntRegister(void (*pFn2)()) ;
 // 40000000 * 12,5ns = 500ms
 
 
-#endif /* UTILITIES_TOPUTILS_H_ */
+#endif /* ROBOTFILES_COMMUNICATION_TOPUTILS_H_ */

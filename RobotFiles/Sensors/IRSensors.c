@@ -8,29 +8,7 @@
 #ifndef SENSORS_IRSENSORS_C_
 #define SENSORS_IRSENSORS_C_
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "inc/hw_gpio.h"
-#include "inc/hw_timer.h"
-#include "inc/hw_uart.h"
-#include "inc/hw_adc.h"
-
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/timer.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/uart.h"
-#include "driverlib/pwm.h"
-#include "driverlib/adc.h"
-
 #include "IRSensors.h"
-
-#include "../uartstdio.h"
 
 struct {
 	volatile uint32_t values[IRSEN_ADC_SENSORS_NUM] ;
@@ -214,7 +192,7 @@ void irSenTimInt() {
 	TimerDisable(IRSEN_TIMER_DELAY_BASE, TIMER_BOTH) ;
 	TimerEnable(IRSEN_TIMER_DELAY_BASE, TIMER_BOTH) ;
 }
-
+#include "inc/hw_timer.h"
 /**
  * ADC interrupt procedure
  *
@@ -231,11 +209,13 @@ void irSenAdcInt() {
 	// get the current index copy and increment original
 	uint8_t i = irSenStruct.i++ ;
 
+	uint32_t tmpVal = irSenStruct.values[i] ;
+
 	// save data from sensor
 	ADCSequenceDataGet(
 			IRSEN_ADC_BASE,
 			IRSEN_ADC_SEQ_NUM,
-			&irSenStruct.values[i] ) ;
+			&tmpVal) ;
 
 	// code to Disable IR diode
 	PWMOutputState(

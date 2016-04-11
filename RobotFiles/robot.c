@@ -7,30 +7,6 @@
 
 #include "robot.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "../Utilities/topUtils.h"
-#include "../Utilities/Bluetooth.h"
-#include "driverlib/sysctl.h"
-#include "../Sensors/BatterySensor.h"
-#include "../Sensors/IRSensors.h"
-#include "../MotorsDir/Motors.h"
-#include "../TivaPeriphs/UsbUart.h"
-
-#include "../uartstdio.h"
-
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "driverlib/uart.h"
-#include "inc/hw_uart.h"
-#include "../MotorsDir/Encoders.h"
-#include "../TivaPeriphs/MyTimer.h"
-
-#include "robotBluetoothMsgs.h"
-#include "../MotorsDir/MotorsController.h"
-
 struct {
 	volatile bool isRunning ;
 } robotStruct ;
@@ -45,12 +21,13 @@ void btn2Int() {
 }
 
 void robotInit() {
+	SysCtlClockSet(SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ ) ;
+
 	utilsInit() ;
 	btn1IntRegister(btn1Int) ;
 	btn2IntRegister(btn2Int) ;
 
 	usbUartInit() ;
-	myTimerInit() ;
 
 	motorsInit() ;
 

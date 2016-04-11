@@ -5,7 +5,26 @@
  *      Author: akowalew
  */
 
+#ifndef MOTORS_DRIVERS_H
+#define MOTORS_DRIVERS_H
+
 #include "Motors.h"
+
+#include "inc/hw_gpio.h"
+#include "inc/hw_pwm.h"
+
+#include "driverlib/gpio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/pwm.h"
+
+typedef enum {
+	SOFT_STOP = 0,
+	COUNTER_CLOCKWISE = 1,
+	CLOCKWISE = 2,
+	HARD_STOP = 3
+} MOTORS_SETUP;
+
 
 #define motorsMLIn1Set()	(GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_3, GPIO_PIN_3))
 #define motorsMLIn2Set()	(GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, GPIO_PIN_3))
@@ -28,7 +47,7 @@
 // MOT_0_IN_2	// PF3	- RightIn2
 // MOT_0_IN_1	// PB3	- RightIn1
 
-// MOT_1_PWM	// PD1 - LeftPWM, M1PWM1
+// MOT_1_PWM	MOTORS_SETUP// PD1 - LeftPWM, M1PWM1
 // MOT_1_STBY	// PE2 - Left!Stby
 // MOT_1_IN_2	// PD3 - LeftIn2
 // MOT_1_IN_1	// PE1 - LeftIn1
@@ -53,3 +72,4 @@ void motorsMLPwmSet(uint32_t u32pwmVal) ;
 void motorsMRPwmSet(uint32_t u32pwmVal) ;
 
 
+#endif

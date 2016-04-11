@@ -8,8 +8,10 @@
 #ifndef MOTORS_MOTORSCONTROLLER_H_
 #define MOTORS_MOTORSCONTROLLER_H_
 
-#include <stdint.h>
-#include <stdbool.h>
+#include "../includeHeader.h"
+#include "Motors.h"
+#include "driverlib/timer.h"
+#include "driverlib/fpu.h"
 
 #define PID_INIT_LEFT_KP 1.0
 #define PID_INIT_LEFT_KI 3.0
@@ -40,7 +42,7 @@ typedef struct {
 #define PID_TESTING
 
 #ifdef PID_TESTING
-#include "../Utilities/Bluetooth.h"
+#include "../Communication/Bluetooth.h"
 	#define PID_TEST_ARRAY_SIZE	 300
 	#define PID_TEST_DUMP_FUN(x)	(UARTprintf((x)))
 	void pidTestInit() ;

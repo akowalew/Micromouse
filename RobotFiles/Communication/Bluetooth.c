@@ -5,29 +5,11 @@
  *      Author: dicker
  */
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "inc/hw_gpio.h"
-#include "inc/hw_uart.h"
-
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/uart.h"
-
 #include "Bluetooth.h"
-
-#include "../uartstdio.h"
 
 struct {
 	uint8_t array[BT_TASKS_PARAM_NUM + 1] ;
 	void (*pFn[BT_TASKS_MAX_NUM])(uint8_t[BT_TASKS_PARAM_NUM]) ;
-
 } btStruct ;
 
 void btAddMessage(uint8_t opCode, void (*pFn)(uint8_t[BT_TASKS_PARAM_NUM])) {

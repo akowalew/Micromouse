@@ -8,7 +8,8 @@
 #ifndef ROBOTFILES_ROBOTBLUETOOTHMSGS_H_
 #define ROBOTFILES_ROBOTBLUETOOTHMSGS_H_
 
-#include <stdint.h>
+#include "includeHeader.h"
+#include "Communication/Bluetooth.h"
 
 void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]);
 void btFunStart(uint8_t params[BT_TASKS_PARAM_NUM]);

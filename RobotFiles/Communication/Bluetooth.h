@@ -8,6 +8,15 @@
 #ifndef BLUETOOTH_H_
 #define BLUETOOTH_H_
 
+#include "../includeHeader.h"
+
+#include "driverlib/gpio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/pin_map.h"
+
+#include "inc/hw_gpio.h"
+#include "driverlib/uart.h"
+
 #define BT_SYSCTL_PERIPH_GPIO	SYSCTL_PERIPH_GPIOB
 #define BT_SYSCTL_PERIPH_UART	SYSCTL_PERIPH_UART1
 #define BT_GPIO_PORT_BASE		GPIO_PORTB_BASE

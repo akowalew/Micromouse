@@ -5,10 +5,16 @@
  *      Author: akowalew
  */
 
-#ifndef MOTORSDIR_ENCODERS_H_
-#define MOTORSDIR_ENCODERS_H_
+#ifndef ROBOTFILES_MOTORSDIR_ENCODERS_H_
+#define ROBOTFILES_MOTORSDIR_ENCODERS_H_
 
-#include <stdint.h>
+#include "../includeHeader.h"
+#include "inc/hw_gpio.h"
+
+#include "driverlib/gpio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/qei.h"
 
 void encInit() ;
 void encEnable() ;
@@ -24,4 +30,4 @@ uint32_t encLGetPos() ;
 int32_t encRGetVel() ;
 int32_t encLGetVel() ;
 
-#endif /* MOTORSDIR_ENCODERS_H_ */
+#endif /* ROBOTFILES_MOTORSDIR_ENCODERS_H_ */

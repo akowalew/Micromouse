@@ -9,27 +9,6 @@
 
 #include "robot.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "../Utilities/topUtils.h"
-#include "../Utilities/Bluetooth.h"
-#include "inc/sysctl.h"
-#include "../Sensors/BatterySensor.h"
-#include "../Sensors/IRSensors.h"
-#include "../MotorsDir/Motors.h"
-#include "../TivaPeriphs/UsbUart.h"
-#include "../uartstdio.h"
-
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "driverlib/uart.h"
-#include "inc/hw_uart.h"
-#include "../MotorsDir/Encoders.h"
-
-#include "robotBluetoothMsgs.h"
-#include "../MotorsDir/MotorsController.h"
 
 void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]) {
 	// params[0] : 0 - LEFT MOTOR, 1 - RIGHT MOTOR

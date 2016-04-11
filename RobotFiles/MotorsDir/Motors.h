@@ -8,14 +8,11 @@
 #ifndef EFFECTORS_MOTORS_H_
 #define EFFECTORS_MOTORS_H_
 
-#include <stdint.h>
+#include "../includeHeader.h"
 
-typedef enum {
-	SOFT_STOP = 0,
-	COUNTER_CLOCKWISE = 1,
-	CLOCKWISE = 2,
-	HARD_STOP = 3
-} MOTORS_SETUP;
+#include "Encoders.h"
+#include "MotorsController.h"
+#include "MotorsDrivers.h"
 
 void motorsInit() ;
 void motorsEnable() ;

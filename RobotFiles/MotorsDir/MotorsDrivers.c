@@ -4,23 +4,13 @@
  *  Created on: 4 kwi 2016
  *      Author: akowalew
  */
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "inc/hw_gpio.h"
-#include "inc/hw_pwm.h"
-
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "driverlib/interrupt.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/pwm.h"
-
-
 #include "MotorsDrivers.h"
+
+
+
+
+
+
 
 void motorsDriversInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB) ;

@@ -4,24 +4,7 @@
  *  Created on: 3 lut 2016
  *      Author: dicker
  */
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "inc/hw_memmap.h"
-#include "inc/tm4c123gh6pm.h"
-#include "inc/hw_gpio.h"
-#include "inc/hw_uart.h"
-
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/uart.h"
-
 #include "UsbUart.h"
-
-#ifdef USBUART_STDIO
-#include "../uartstdio.h"
-#endif
 
 void usbUartInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA) ;

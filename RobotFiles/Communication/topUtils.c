@@ -5,7 +5,7 @@
  *      Author: akowalew
  */
 
-#include "topUtils.h"
+#include "../Communication/topUtils.h"
 
 #include <stdint.h>
 #include <stdbool.h>
