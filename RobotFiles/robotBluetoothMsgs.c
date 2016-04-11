@@ -14,7 +14,7 @@
 
 #include "../Utilities/topUtils.h"
 #include "../Utilities/Bluetooth.h"
-#include "driverlib/sysctl.h"
+#include "inc/sysctl.h"
 #include "../Sensors/BatterySensor.h"
 #include "../Sensors/IRSensors.h"
 #include "../MotorsDir/Motors.h"
