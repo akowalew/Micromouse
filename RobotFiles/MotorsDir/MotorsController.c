@@ -8,11 +8,20 @@
 #include "MotorsController.h"
 
 volatile struct {
-	volatile int32_t velSetPointLeft;
-	volatile int32_t velSetPointRight;
+	int32_t velSetPointLeft;
+	int32_t velSetPointRight;
 
-	volatile PidStruct pidStructLeft ;
-	volatile PidStruct pidStructRight ;
+	PidStruct pidStructLeft;
+	PidStruct pidStructRight;
+
+	PidStruct posPidStructLeft;
+	PidStruct posPidStructRight;
+
+	int32_t posSetPointLeft;
+	int32_t posSetPointRight;
+
+	int32_t currLeftPos;
+	int32_t currRightPos ;
 } cntrlSt;
 
 int32_t pidIteration(int32_t setPoint, int32_t processValue, volatile PidStruct * pidSt) {
@@ -35,12 +44,19 @@ int32_t pidIteration(int32_t setPoint, int32_t processValue, volatile PidStruct 
 	return pTerm + iTerm + dTerm ;
 }
 
-inline void motVelSetPointLeft(int32_t velocitySp) {
+void motVelSetPointLeft(int32_t velocitySp) {
 	cntrlSt.velSetPointLeft = velocitySp ;
 }
 
-inline void motVelSetPointRight(int32_t velocitySp) {
+void motVelSetPointRight(int32_t velocitySp) {
 	cntrlSt.velSetPointRight = velocitySp ;
+}
+
+void motPosSetPointLeft(uint32_t positionLeftSetPoint){
+	cntrlSt.posSetPointLeft = positionLeftSetPoint;
+}
+void motPosSetPointRight(uint32_t positionRightSetPoint){
+	cntrlSt.posSetPointRight = positionRightSetPoint;
 }
 
 inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSetPoint) {
@@ -52,10 +68,10 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 	volatile uint16_t test_i ;
 	volatile uint16_t maxI ;
 	volatile uint8_t btSetPoint ;
-	volatile int32_t	test_leftVel[PID_TEST_ARRAY_SIZE],
-						test_leftTerm[PID_TEST_ARRAY_SIZE],
-						test_rightVel[PID_TEST_ARRAY_SIZE],
-						test_rightTerm[PID_TEST_ARRAY_SIZE] ;
+	volatile int32_t	test_leftValue[PID_TEST_ARRAY_SIZE],
+						test_leftSteer[PID_TEST_ARRAY_SIZE],
+						test_rightValue[PID_TEST_ARRAY_SIZE],
+						test_rightSteer[PID_TEST_ARRAY_SIZE] ;
 	char pidTestStr[24] ;
 
 	void pidTestInit() {
@@ -98,7 +114,7 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 	void pidTestSendData(){
 		uint16_t i ;
 		for(i = 0 ; i < maxI ; i++) {
-			usprintf(pidTestStr, "%d %d %d %d\r\n", test_leftVel[i], test_leftTerm[i], test_rightVel[i], test_rightTerm[i]) ;
+			usprintf(pidTestStr, "%d %d %d %d\n", test_leftValue[i], test_leftSteer[i], test_rightValue[i], test_rightSteer[i]) ;
 			PID_TEST_DUMP_FUN(pidTestStr) ;
 		}
 	}
@@ -114,13 +130,25 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 void motCntrlTimeoutInt() {
 	TimerIntClear(MOT_CNTRL_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
 
-	int32_t leftTerm, rightTerm ;
+	int32_t leftTerm, rightTerm, leftPosTerm, rightPosTerm ;
 
 	int32_t	leftVel = encLGetVel() ,
 			rightVel = encRGetVel() ;
 
-	leftTerm = pidIteration(cntrlSt.velSetPointLeft, leftVel, &cntrlSt.pidStructLeft);
-	rightTerm = pidIteration(cntrlSt.velSetPointRight, rightVel, &cntrlSt.pidStructRight);
+	cntrlSt.currLeftPos += leftVel ;
+	cntrlSt.currRightPos += rightVel ;
+
+	// pid położeniowy
+	leftPosTerm = pidIteration(cntrlSt.posSetPointLeft, cntrlSt.currLeftPos, &cntrlSt.posPidStructLeft);
+	rightPosTerm = pidIteration(cntrlSt.posSetPointRight, cntrlSt.currRightPos, &cntrlSt.posPidStructRight);
+
+	if(leftPosTerm > cntrlSt.velSetPointLeft)
+		leftPosTerm = cntrlSt.velSetPointLeft;
+	if(rightPosTerm > cntrlSt.velSetPointRight)
+		rightPosTerm = cntrlSt.velSetPointRight;
+
+	leftTerm = pidIteration(leftPosTerm, leftVel, &cntrlSt.pidStructLeft);
+	rightTerm = pidIteration(rightPosTerm, rightVel, &cntrlSt.pidStructRight);
 
 	if(leftTerm > 0) {
 		motorsSetupML(CLOCKWISE) ;
@@ -140,10 +168,10 @@ void motCntrlTimeoutInt() {
 
 #ifdef PID_TESTING
 	if(test_i < PID_TEST_ARRAY_SIZE) {
-		test_leftTerm[test_i] = leftTerm;
-		test_leftVel[test_i] = leftVel;
-		test_rightTerm[test_i] = rightTerm;
-		test_rightVel[test_i] = rightVel;
+		test_leftSteer[test_i] = leftPosTerm;
+		test_leftValue[test_i] = cntrlSt.currLeftPos;
+		test_rightSteer[test_i] = rightPosTerm;
+		test_rightValue[test_i] = cntrlSt.currRightPos;
 		test_i++;
 	}
 #endif
@@ -162,14 +190,24 @@ void motCntrlInit() {
 	FPUEnable() ;
 
 	// configure initial values for PID
-	cntrlSt.velSetPointLeft = 0 ;
-	cntrlSt.velSetPointRight = 0 ;
+	cntrlSt.velSetPointLeft = 0;
+	cntrlSt.velSetPointRight = 0;
+	cntrlSt.currLeftPos = 0;
+	cntrlSt.currRightPos = 0;
+	cntrlSt.posSetPointLeft = 0;
+	cntrlSt.posSetPointRight = 0;
 
 	PidStruct tmpl = {0, 0.0, {PID_INIT_LEFT_KP, PID_INIT_LEFT_KI, PID_INIT_LEFT_KD}} ;
 	cntrlSt.pidStructLeft = tmpl ;
 
 	PidStruct tmpr = {0, 0.0, {PID_INIT_RIGHT_KP, PID_INIT_RIGHT_KI, PID_INIT_RIGHT_KD}} ;
 	cntrlSt.pidStructRight = tmpr ;
+
+	PidStruct tmpposl = {0, 0.0, {POS_PID_INIT_LEFT_KP, POS_PID_INIT_LEFT_KI, POS_PID_INIT_LEFT_KD}};
+	cntrlSt.posPidStructLeft = tmpposl ;
+
+	PidStruct tmpposr = {0, 0.0, {POS_PID_INIT_RIGHT_KP, POS_PID_INIT_RIGHT_KI, POS_PID_INIT_RIGHT_KD}};
+	cntrlSt.posPidStructLeft = tmpposr ;
 
 #ifdef PID_TESTING
 	pidTestInit() ;
@@ -190,9 +228,21 @@ void motCntrlDisable() {
 }
 
 void motCntrlClearControl() {
+
 	// configure initial values for PID
 	cntrlSt.velSetPointLeft = 0 ;
 	cntrlSt.velSetPointRight = 0 ;
+
+	cntrlSt.posSetPointLeft = 0;
+	cntrlSt.posSetPointRight = 0;
+
+	cntrlSt.posPidStructLeft.lastProcessValue = 0;
+	cntrlSt.posPidStructLeft.sumError = 0.0;
+
+	cntrlSt.posPidStructRight.lastProcessValue = 0;
+	cntrlSt.posPidStructRight.sumError = 0.0;
+
+	cntrlSt.currLeftPos = cntrlSt.currRightPos = 0;
 
 	cntrlSt.pidStructLeft.lastProcessValue = 0;
 	cntrlSt.pidStructLeft.sumError = 0.0;

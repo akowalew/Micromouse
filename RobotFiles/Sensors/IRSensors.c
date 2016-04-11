@@ -199,9 +199,7 @@ void irSenTimInt() {
  * This code is executed when ADC conversion is completed
  * At First, program has to update table with values od ADC
  * Secondly, current IR diode must be switched off
- * At the end, index of current sensor is icremented
- *
- *
+ * At the end, index of current sensor is incremented
  */
 void irSenAdcInt() {
 	ADCIntClear(IRSEN_ADC_BASE, IRSEN_ADC_SEQ_NUM) ;
@@ -209,13 +207,15 @@ void irSenAdcInt() {
 	// get the current index copy and increment original
 	uint8_t i = irSenStruct.i++ ;
 
-	uint32_t tmpVal = irSenStruct.values[i] ;
+	uint32_t tmpVal ;
 
 	// save data from sensor
 	ADCSequenceDataGet(
 			IRSEN_ADC_BASE,
 			IRSEN_ADC_SEQ_NUM,
 			&tmpVal) ;
+
+	irSenStruct.values[i] = tmpVal ;
 
 	// code to Disable IR diode
 	PWMOutputState(

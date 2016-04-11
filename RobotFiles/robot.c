@@ -68,12 +68,20 @@ void robotProcedure() {
 	while(!robotStruct.isRunning) ;
 	ledsTurnOff1() ;
 
+
 	pidTestStartTesting() ;
+	motPosSetPointLeft(360);
+	motPosSetPointRight(360);
+	motVelSetPointLeft(20) ;
+	motVelSetPointRight(20) ;
 	robotStartOthers() ;
+
 	while(robotStruct.isRunning) {
+
 		if(!pidTestIsStillTesting())
-			break ;
+			break;
 	}
+
 	robotStop() ;
 	pidTestSendData() ;
 }

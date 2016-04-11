@@ -13,24 +13,32 @@
 #include "driverlib/timer.h"
 #include "driverlib/fpu.h"
 
-#define PID_INIT_LEFT_KP 1.0
-#define PID_INIT_LEFT_KI 3.0
-#define PID_INIT_LEFT_KD 1.0
+#define PID_INIT_LEFT_KP 5.0
+#define PID_INIT_LEFT_KI 2.5
+#define PID_INIT_LEFT_KD 3.0
 
-#define PID_INIT_RIGHT_KP 1.0
-#define PID_INIT_RIGHT_KI 3.0
-#define PID_INIT_RIGHT_KD 1.0
+#define PID_INIT_RIGHT_KP 5.0
+#define PID_INIT_RIGHT_KI 2.5
+#define PID_INIT_RIGHT_KD 3.0
+
+#define POS_PID_INIT_LEFT_KP	0.15
+#define POS_PID_INIT_LEFT_KI	0.0
+#define POS_PID_INIT_LEFT_KD	0.0
+
+#define POS_PID_INIT_RIGHT_KP	0.15
+#define POS_PID_INIT_RIGHT_KI	0.0
+#define POS_PID_INIT_RIGHT_KD	0.0
 
 typedef struct {
-	volatile float	Kp ;
-	volatile float	Ki ;
-	volatile float	Kd ;
+	float	Kp ;
+	float	Ki ;
+	float	Kd ;
 } PidConstants_t ;
 
 typedef struct {
 
-	volatile int32_t lastProcessValue; // used to derivative of process value
-	volatile float sumError; // sumation of errors, used for integrate calculations
+	int32_t lastProcessValue; // used to derivative of process value
+	float sumError; // sumation of errors, used for integrate calculations
 
 	PidConstants_t pidConstants;
 } PidStruct ;

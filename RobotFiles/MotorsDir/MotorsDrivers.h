@@ -71,5 +71,4 @@ void motorsSetupMR(MOTORS_SETUP motorsSetup) ;
 void motorsMLPwmSet(uint32_t u32pwmVal) ;
 void motorsMRPwmSet(uint32_t u32pwmVal) ;
 
-
 #endif
