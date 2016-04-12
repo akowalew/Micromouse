@@ -6,12 +6,6 @@
  */
 #include "MotorsDrivers.h"
 
-
-
-
-
-
-
 void motorsDriversInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC) ;

@@ -8,20 +8,20 @@
 #include "MotorsController.h"
 
 volatile struct {
-	int32_t velSetPointLeft;
-	int32_t velSetPointRight;
+	volatile int32_t velSetPointLeft;
+	volatile int32_t velSetPointRight;
 
-	PidStruct pidStructLeft;
-	PidStruct pidStructRight;
+	volatile PidStruct pidStructLeft;
+	volatile PidStruct pidStructRight;
 
-	PidStruct posPidStructLeft;
-	PidStruct posPidStructRight;
+	volatile PidStruct posPidStructLeft;
+	volatile PidStruct posPidStructRight;
 
-	int32_t posSetPointLeft;
-	int32_t posSetPointRight;
+	volatile int32_t posSetPointLeft;
+	volatile int32_t posSetPointRight;
 
-	int32_t currLeftPos;
-	int32_t currRightPos ;
+	volatile int32_t currLeftPos;
+	volatile int32_t currRightPos ;
 } cntrlSt;
 
 int32_t pidIteration(int32_t setPoint, int32_t processValue, volatile PidStruct * pidSt) {
@@ -67,7 +67,7 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 #ifdef PID_TESTING
 	volatile uint16_t test_i ;
 	volatile uint16_t maxI ;
-	volatile uint8_t btSetPoint ;
+	volatile uint32_t btSetPointVel, btSetPointPos ;
 	volatile int32_t	test_leftValue[PID_TEST_ARRAY_SIZE],
 						test_leftSteer[PID_TEST_ARRAY_SIZE],
 						test_rightValue[PID_TEST_ARRAY_SIZE],
@@ -75,13 +75,17 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 	char pidTestStr[24] ;
 
 	void pidTestInit() {
-		btSetPoint = 0 ;
+		btSetPointVel = 0 ;
+		btSetPointPos = 0;
+
 		maxI = PID_TEST_ARRAY_SIZE ;
 	}
 
 	void pidTestStartTesting(){
-		motVelSetPointLeft(btSetPoint) ;
-		motVelSetPointRight(btSetPoint) ;
+		motVelSetPointLeft(btSetPointVel);
+		motVelSetPointRight(btSetPointVel);
+		motPosSetPointRight(btSetPointPos);
+		motPosSetPointLeft(btSetPointPos);
 
 		usprintf(
 				pidTestStr,
@@ -101,8 +105,11 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 				) ;
 		PID_TEST_DUMP_FUN(pidTestStr) ;
 
-		usprintf(pidTestStr, "SP %d MAXI %d\r\n", btSetPoint, maxI);
+		usprintf(pidTestStr, "SP %d MAXI %d\r\n", btSetPointVel, maxI);
 		PID_TEST_DUMP_FUN(pidTestStr) ;
+
+		usprintf(pidTestStr, "Pos SP %d\r\n", btSetPointPos);
+		PID_TEST_DUMP_FUN(pidTestStr);
 
 		test_i = 0 ;
 	}
@@ -120,10 +127,13 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 	}
 
 	void btFunPidTestConfigure(uint8_t params[BT_TASKS_PARAM_NUM]){
-		btSetPoint = params[0] ;
-		maxI = ((uint16_t)(params[1]) << 8) | params[2] ;
+		btSetPointVel = params[0] ;
 	}
 
+	void btFunPosSP(uint8_t params[BT_TASKS_PARAM_NUM]){
+		uint32_t val = (((uint32_t)params[0]) << 16) | (((uint32_t)params[1]) << 8) | ((uint32_t)params[2]) ;
+		btSetPointPos = val ;
+	}
 
 #endif
 
@@ -135,6 +145,7 @@ void motCntrlTimeoutInt() {
 	int32_t	leftVel = encLGetVel() ,
 			rightVel = encRGetVel() ;
 
+#ifdef PID_POS_REGULATOR
 	cntrlSt.currLeftPos += leftVel ;
 	cntrlSt.currRightPos += rightVel ;
 
@@ -146,6 +157,10 @@ void motCntrlTimeoutInt() {
 		leftPosTerm = cntrlSt.velSetPointLeft;
 	if(rightPosTerm > cntrlSt.velSetPointRight)
 		rightPosTerm = cntrlSt.velSetPointRight;
+#else
+	leftPosTerm = cntrlSt.velSetPointLeft;
+	rightPosTerm = cntrlSt.velSetPointRight;
+#endif
 
 	leftTerm = pidIteration(leftPosTerm, leftVel, &cntrlSt.pidStructLeft);
 	rightTerm = pidIteration(rightPosTerm, rightVel, &cntrlSt.pidStructRight);
@@ -175,6 +190,7 @@ void motCntrlTimeoutInt() {
 		test_i++;
 	}
 #endif
+
 }
 
 void motCntrlInit() {
@@ -207,7 +223,7 @@ void motCntrlInit() {
 	cntrlSt.posPidStructLeft = tmpposl ;
 
 	PidStruct tmpposr = {0, 0.0, {POS_PID_INIT_RIGHT_KP, POS_PID_INIT_RIGHT_KI, POS_PID_INIT_RIGHT_KD}};
-	cntrlSt.posPidStructLeft = tmpposr ;
+	cntrlSt.posPidStructRight = tmpposr ;
 
 #ifdef PID_TESTING
 	pidTestInit() ;

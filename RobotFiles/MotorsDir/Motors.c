@@ -15,7 +15,6 @@ void motorsInit() {
 }
 
 void motorsEnable() {
-
 	// initial gpio status
 	motorsDriversEnable() ;
 	encEnable() ;

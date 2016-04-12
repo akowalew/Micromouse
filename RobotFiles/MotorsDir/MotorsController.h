@@ -13,21 +13,21 @@
 #include "driverlib/timer.h"
 #include "driverlib/fpu.h"
 
-#define PID_INIT_LEFT_KP 5.0
-#define PID_INIT_LEFT_KI 2.5
-#define PID_INIT_LEFT_KD 3.0
+#define PID_INIT_LEFT_KP 1.5
+#define PID_INIT_LEFT_KI 0.95
+#define PID_INIT_LEFT_KD 1.0
 
-#define PID_INIT_RIGHT_KP 5.0
-#define PID_INIT_RIGHT_KI 2.5
-#define PID_INIT_RIGHT_KD 3.0
+#define PID_INIT_RIGHT_KP 1.5
+#define PID_INIT_RIGHT_KI 1.0
+#define PID_INIT_RIGHT_KD 1.75
 
-#define POS_PID_INIT_LEFT_KP	0.15
+#define POS_PID_INIT_LEFT_KP	0.2
 #define POS_PID_INIT_LEFT_KI	0.0
-#define POS_PID_INIT_LEFT_KD	0.0
+#define POS_PID_INIT_LEFT_KD	2.0
 
-#define POS_PID_INIT_RIGHT_KP	0.15
+#define POS_PID_INIT_RIGHT_KP	0.2
 #define POS_PID_INIT_RIGHT_KI	0.0
-#define POS_PID_INIT_RIGHT_KD	0.0
+#define POS_PID_INIT_RIGHT_KD	2.0
 
 typedef struct {
 	float	Kp ;
@@ -48,16 +48,18 @@ typedef struct {
 #define MOT_CNTRL_TIMER_DELAY 	800000	// 10ms cycle
 
 #define PID_TESTING
+#define PID_POS_REGULATOR
 
 #ifdef PID_TESTING
 #include "../Communication/Bluetooth.h"
-	#define PID_TEST_ARRAY_SIZE	 300
+	#define PID_TEST_ARRAY_SIZE	 200
 	#define PID_TEST_DUMP_FUN(x)	(UARTprintf((x)))
 	void pidTestInit() ;
 	void pidTestStartTesting() ;
 	bool pidTestIsStillTesting() ;
 	void pidTestSendData() ;
 	void btFunPidTestConfigure(uint8_t params[BT_TASKS_PARAM_NUM]);
+	void btFunPosSP(uint8_t params[BT_TASKS_PARAM_NUM]);
 #endif
 
 void motCntrlInit() ;

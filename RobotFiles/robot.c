@@ -39,6 +39,7 @@ void robotInit() {
 	btAddMessage(0x10, btFunMotor) ;
 #ifdef PID_TESTING
 	btAddMessage(0x05, btFunPidTestConfigure) ;
+	btAddMessage(0x04, btFunPosSP) ;
 #endif
 
  	batSensInit() ;
@@ -68,16 +69,10 @@ void robotProcedure() {
 	while(!robotStruct.isRunning) ;
 	ledsTurnOff1() ;
 
-
 	pidTestStartTesting() ;
-	motPosSetPointLeft(360);
-	motPosSetPointRight(360);
-	motVelSetPointLeft(20) ;
-	motVelSetPointRight(20) ;
 	robotStartOthers() ;
 
 	while(robotStruct.isRunning) {
-
 		if(!pidTestIsStillTesting())
 			break;
 	}
