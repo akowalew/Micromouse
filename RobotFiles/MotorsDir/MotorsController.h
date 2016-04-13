@@ -69,8 +69,4 @@ void motPosSpSetR(uint32_t positionRightSetPoint);
 	void btFunPosSP(uint8_t params[BT_TASKS_PARAM_NUM]);
 #endif
 
-#define MOT_CNTRL_TIMER_PERIPH	SYSCTL_PERIPH_TIMER4
-#define MOT_CNTRL_TIMER_BASE	TIMER4_BASE
-#define MOT_CNTRL_TIMER_DELAY 	800000	// 10ms cycle
-
 #endif /* MOTORS_MOTORSCONTROLLER_H_ */

@@ -19,6 +19,16 @@
 void motEncodersInit() ;
 void motEncodersEnable() ;
 void motEncodersDisable() ;
+void motEncodersInterruptsConfigure(void (*p_leftFunction)(), void (*p_rightFunction)()) ;
+void motEncodersInterruptsEnable();
+void motEncodersInterruptsDisable();
+
+#define motEncodersIntClearL()	(QEIIntClear(ENC_LEFT_BASE, QEI_INTTIMER))
+#define motEncodersIntClearR()	(QEIIntClear(ENC_RIGHT_BASE, QEI_INTTIMER))
+
+#define ENC_LEFT_BASE	QEI1_BASE
+#define ENC_RIGHT_BASE	QEI0_BASE
+
 
 // 10 ms period between measures
 #define ENC_VELOCITY_PERIOD	800000

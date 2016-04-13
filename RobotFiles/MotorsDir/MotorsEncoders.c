@@ -7,10 +7,10 @@
 
 #include "MotorsEncoders.h"
 
-uint32_t motPosGetR() 	{ return QEIPositionGet(QEI0_BASE); }
-uint32_t motPosGetL() 	{ return QEIPositionGet(QEI1_BASE); }
-int32_t motVelGetR() 	{ return QEIVelocityGet(QEI0_BASE) * QEIDirectionGet(QEI0_BASE) ;}
-int32_t motVelGetL()	{ return QEIVelocityGet(QEI1_BASE) * QEIDirectionGet(QEI1_BASE) ;}
+uint32_t motPosGetR() 	{ return QEIPositionGet(ENC_RIGHT_BASE); }
+uint32_t motPosGetL() 	{ return QEIPositionGet(ENC_LEFT_BASE); }
+int32_t motVelGetR() 	{ return QEIVelocityGet(ENC_RIGHT_BASE) * QEIDirectionGet(ENC_RIGHT_BASE) ;}
+int32_t motVelGetL()	{ return QEIVelocityGet(ENC_LEFT_BASE) * QEIDirectionGet(ENC_LEFT_BASE) ;}
 
 void motEncodersInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_QEI0) ;
@@ -57,7 +57,20 @@ void motEncodersDisable() {
 
 	QEIVelocityDisable(QEI0_BASE) ;
 	QEIVelocityDisable(QEI1_BASE) ;
+}
 
-	QEIPositionSet(QEI0_BASE, 0) ;
-	QEIPositionSet(QEI1_BASE, 0) ;
+void motEncodersInterruptsConfigure(void (*p_leftFunction)(), void (*p_rightFunction)()) {
+	QEIIntRegister(ENC_LEFT_BASE, p_leftFunction);
+	QEIIntRegister(ENC_RIGHT_BASE, p_rightFunction);
+}
+
+void motEncodersInterruptsEnable(){
+	QEIIntEnable(QEI0_BASE, QEI_INTTIMER);
+	QEIIntEnable(QEI1_BASE, QEI_INTTIMER);
+	QEIIntClear(QEI0_BASE, QEI_INTTIMER);
+	QEIIntClear(QEI1_BASE, QEI_INTTIMER);
+}
+void motEncodersInterruptsDisable(){
+	QEIIntDisable(QEI0_BASE, QEI_INTTIMER);
+	QEIIntDisable(QEI1_BASE, QEI_INTTIMER);
 }

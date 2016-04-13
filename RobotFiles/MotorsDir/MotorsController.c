@@ -86,6 +86,8 @@ volatile struct {
 #endif
 
 void motCntrlFunctionL(){
+	motEncodersIntClearL();
+
 	int32_t velTermL, posTermL;
 	int32_t velL = motVelGetL();
 
@@ -116,6 +118,8 @@ void motCntrlFunctionL(){
 }
 
 void motCntrlFunctionR(){
+	motEncodersIntClearR();
+
 	int32_t velTermR, posTermR;
 	int32_t velR = motVelGetR();
 
@@ -145,14 +149,6 @@ void motCntrlFunctionR(){
 #endif
 }
 
-void motCntrlTimeoutInt() {
-	TimerIntClear(MOT_CNTRL_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
-
-	motCntrlFunctionL();
-	motCntrlFunctionR();
-
-}
-
 void motCntrlReset() {
 
 	pidCntrlReset(&cntrlSt.motL.posPid);
@@ -170,16 +166,10 @@ void motCntrlReset() {
 
 
 void motCntrlInit() {
-	SysCtlPeripheralEnable(MOT_CNTRL_TIMER_PERIPH) ;
-	SysCtlDelay(3) ;
-
-	// configure timer to run PID procedure periodically
-	TimerConfigure(MOT_CNTRL_TIMER_BASE, TIMER_CFG_PERIODIC) ;
-	TimerLoadSet(MOT_CNTRL_TIMER_BASE, TIMER_A, MOT_CNTRL_TIMER_DELAY) ;
-	TimerIntRegister(MOT_CNTRL_TIMER_BASE, TIMER_A, motCntrlTimeoutInt) ;
-
 // enable FPU to make calculations better
 	FPUEnable() ;
+
+	motEncodersInterruptsConfigure(motCntrlFunctionL, motCntrlFunctionR);
 
 	// configure initial values for PID
 	motCntrlReset();
@@ -188,22 +178,17 @@ void motCntrlInit() {
 	pidCntrlConstantsSet(&cntrlSt.motR.posPid, POS_PID_RIGHT_KP, POS_PID_RIGHT_KI, POS_PID_RIGHT_KD);
 	pidCntrlConstantsSet(&cntrlSt.motR.velPid, PID_RIGHT_KP, PID_RIGHT_KI, PID_RIGHT_KD);
 
-
 #ifdef PID_TESTING
 	pidTestInit() ;
 #endif
 }
 
 void motCntrlEnable() {
-	TimerEnable(MOT_CNTRL_TIMER_BASE, TIMER_BOTH) ;
-	TimerIntEnable(MOT_CNTRL_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
-	TimerIntClear(MOT_CNTRL_TIMER_BASE, TIMER_TIMA_TIMEOUT) ;
+	motEncodersInterruptsEnable();
 }
 
 void motCntrlDisable() {
-	TimerDisable(MOT_CNTRL_TIMER_BASE, TIMER_BOTH) ;
-	TimerIntDisable(MOT_CNTRL_TIMER_BASE,TIMER_TIMA_TIMEOUT) ;
-
+	motEncodersInterruptsDisable();
 	motCntrlReset() ;
 }
 
