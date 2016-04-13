@@ -32,17 +32,11 @@ void btFunStart(uint8_t params[BT_TASKS_PARAM_NUM]) {
 }
 
 void btFunLPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	PidConstants_t tmp = { ((float)(params[0]))/10, ((float)(params[1]))/10, ((float)(params[2]))/10 };
-	motCntrlSetLeftPid(tmp);
+	float kp = ((float)(params[0]))/10, ki = ((float)(params[1]))/10, kd = ((float)(params[2]))/10 ;
+	motPidVelSetupL(kp, ki, kd);
 }
 
 void btFunRPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	PidConstants_t tmp = {((float)(params[0]))/10, ((float)(params[1]))/10, ((float)(params[2]))/10 };
-	motCntrlSetRightPid(tmp);
-}
-
-void btFunBothPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
-	PidConstants_t tmp = {((float)(params[0])) / 10 , ((float)(params[1]))/10, ((float)(params[2]))/10 };
-	motCntrlSetRightPid(tmp);
-	motCntrlSetLeftPid(tmp);
+	float kp = ((float)(params[0]))/10, ki = ((float)(params[1]))/10, kd = ((float)(params[2]))/10 ;
+	motPidVelSetupR(kp, ki, kd);
 }

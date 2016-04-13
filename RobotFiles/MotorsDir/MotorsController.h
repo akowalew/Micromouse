@@ -10,45 +10,52 @@
 
 #include "../includeHeader.h"
 #include "Motors.h"
+#include "PidController.h"
 #include "driverlib/timer.h"
 #include "driverlib/fpu.h"
 
-#define PID_INIT_LEFT_KP 1.5
-#define PID_INIT_LEFT_KI 0.95
-#define PID_INIT_LEFT_KD 1.0
+#define PID_LEFT_KP 1.5
+#define PID_LEFT_KI 0.95
+#define PID_LEFT_KD 1.0
 
-#define PID_INIT_RIGHT_KP 1.5
-#define PID_INIT_RIGHT_KI 1.0
-#define PID_INIT_RIGHT_KD 1.75
+#define PID_RIGHT_KP 1.5
+#define PID_RIGHT_KI 1.0
+#define PID_RIGHT_KD 1.75
 
-#define POS_PID_INIT_LEFT_KP	0.2
-#define POS_PID_INIT_LEFT_KI	0.0
-#define POS_PID_INIT_LEFT_KD	2.0
+#define POS_PID_LEFT_KP	0.2
+#define POS_PID_LEFT_KI	0.0
+#define POS_PID_LEFT_KD	2.0
 
-#define POS_PID_INIT_RIGHT_KP	0.2
-#define POS_PID_INIT_RIGHT_KI	0.0
-#define POS_PID_INIT_RIGHT_KD	2.0
-
-typedef struct {
-	float	Kp ;
-	float	Ki ;
-	float	Kd ;
-} PidConstants_t ;
+#define POS_PID_RIGHT_KP	0.2
+#define POS_PID_RIGHT_KI	0.0
+#define POS_PID_RIGHT_KD	2.0
 
 typedef struct {
+	PidStruct velPid;
+	PidStruct posPid;
 
-	int32_t lastProcessValue; // used to derivative of process value
-	float sumError; // sumation of errors, used for integrate calculations
-
-	PidConstants_t pidConstants;
-} PidStruct ;
-
-#define MOT_CNTRL_TIMER_PERIPH	SYSCTL_PERIPH_TIMER4
-#define MOT_CNTRL_TIMER_BASE	TIMER4_BASE
-#define MOT_CNTRL_TIMER_DELAY 	800000	// 10ms cycle
+	int32_t velSp;
+	int32_t posSp;
+	int32_t posCurr;
+} motorControl_t;
 
 #define PID_TESTING
 #define PID_POS_REGULATOR
+
+void motCntrlInit();
+void motCntrlEnable();
+void motCntrlDisable();
+
+void motPidVelSetupL(float kp, float ki, float kd);
+void motPidVelSetupR(float kp, float ki, float kd);
+
+void motPidPosSetupL(float kp, float ki, float kd);
+void motPidPosSetupR(float kp, float ki, float kd);
+
+void motVelSpSetL(int32_t velocityLeftSetPoint) ;
+void motVelSpSetR(int32_t velocityRightSetPoint);
+void motPosSpSetL(uint32_t positionLeftSetPoint);
+void motPosSpSetR(uint32_t positionRightSetPoint);
 
 #ifdef PID_TESTING
 #include "../Communication/Bluetooth.h"
@@ -62,17 +69,8 @@ typedef struct {
 	void btFunPosSP(uint8_t params[BT_TASKS_PARAM_NUM]);
 #endif
 
-void motCntrlInit() ;
-void motCntrlEnable() ;
-void motCntrlDisable() ;
-
-void motCntrlClearControl() ;
-void motCntrlSetLeftPid(PidConstants_t leftPid) ;
-void motCntrlSetRightPid(PidConstants_t rightPid) ;
-
-void motVelSpSetL(int32_t velocityLeftSetPoint) ;
-void motVelSpSetR(int32_t velocityRightSetPoint) ;
-void motPosSpL(uint32_t positionLeftSetPoint);
-void motPosSpR(uint32_t positionRightSetPoint);
+#define MOT_CNTRL_TIMER_PERIPH	SYSCTL_PERIPH_TIMER4
+#define MOT_CNTRL_TIMER_BASE	TIMER4_BASE
+#define MOT_CNTRL_TIMER_DELAY 	800000	// 10ms cycle
 
 #endif /* MOTORS_MOTORSCONTROLLER_H_ */

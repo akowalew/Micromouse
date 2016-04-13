@@ -32,7 +32,6 @@ void robotInit() {
 	motorsInit() ;
 
 	btInit() ;
-	btAddMessage(0x06, btFunBothPid) ;
 	btAddMessage(0x07, btFunLPid) ;
 	btAddMessage(0x08, btFunRPid) ;
 	btAddMessage(0x09, btFunStart) ;
