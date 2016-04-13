@@ -7,22 +7,22 @@
 #include "Motors.h"
 
 void motorsInit() {
-	motorsDriversInit();
-	motorsSetupML(SOFT_STOP) ;
-	motorsSetupMR(SOFT_STOP) ;
-	encInit() ;
+	motDriversInit();
+	motStateSetL(SOFT_STOP) ;
+	motStateSetR(SOFT_STOP) ;
+	motEncodersInit() ;
 	motCntrlInit() ;
 }
 
 void motorsEnable() {
 	// initial gpio status
-	motorsDriversEnable() ;
-	encEnable() ;
+	motDriversEnable() ;
+	motEncodersEnable() ;
 	motCntrlEnable();
 }
 
 void motorsDisable() {
-	motorsDriversDisable() ;
+	motDriversDisable() ;
 	motCntrlDisable() ;
-	encDisable() ;
+	motEncodersDisable() ;
 }

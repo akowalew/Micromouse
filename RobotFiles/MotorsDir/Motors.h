@@ -10,19 +10,12 @@
 
 #include "../includeHeader.h"
 
-#include "Encoders.h"
 #include "MotorsController.h"
 #include "MotorsDrivers.h"
+#include "MotorsEncoders.h"
 
 void motorsInit() ;
 void motorsEnable() ;
 void motorsDisable() ;
-
-void motVelSetPointLeft(int32_t velocityLeftSetPoint) ;
-void motVelSetPointRight(int32_t velocityRightSetPoint) ;
-void motPosSetPointLeft(uint32_t positionLeftSetPoint);
-void motPosSetPointRight(uint32_t positionRightSetPoint);
-
-void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSetPoint) ;
 
 #endif /* EFFECTORS_MOTORS_H_ */

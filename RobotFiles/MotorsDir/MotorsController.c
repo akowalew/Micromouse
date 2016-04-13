@@ -44,18 +44,18 @@ int32_t pidIteration(int32_t setPoint, int32_t processValue, volatile PidStruct 
 	return pTerm + iTerm + dTerm ;
 }
 
-void motVelSetPointLeft(int32_t velocitySp) {
+void motVelSpSetL(int32_t velocitySp) {
 	cntrlSt.velSetPointLeft = velocitySp ;
 }
 
-void motVelSetPointRight(int32_t velocitySp) {
+void motVelSpSetR(int32_t velocitySp) {
 	cntrlSt.velSetPointRight = velocitySp ;
 }
 
-void motPosSetPointLeft(uint32_t positionLeftSetPoint){
+void motPosSpL(uint32_t positionLeftSetPoint){
 	cntrlSt.posSetPointLeft = positionLeftSetPoint;
 }
-void motPosSetPointRight(uint32_t positionRightSetPoint){
+void motPosSpR(uint32_t positionRightSetPoint){
 	cntrlSt.posSetPointRight = positionRightSetPoint;
 }
 
@@ -82,10 +82,10 @@ inline void motVelSetPoint(int32_t velocityLeftSetPoint, int32_t velocityRightSe
 	}
 
 	void pidTestStartTesting(){
-		motVelSetPointLeft(btSetPointVel);
-		motVelSetPointRight(btSetPointVel);
-		motPosSetPointRight(btSetPointPos);
-		motPosSetPointLeft(btSetPointPos);
+		motVelSpSetL(btSetPointVel);
+		motVelSpSetR(btSetPointVel);
+		motPosSpR(btSetPointPos);
+		motPosSpL(btSetPointPos);
 
 		usprintf(
 				pidTestStr,
@@ -142,8 +142,8 @@ void motCntrlTimeoutInt() {
 
 	int32_t leftTerm, rightTerm, leftPosTerm, rightPosTerm ;
 
-	int32_t	leftVel = encLGetVel() ,
-			rightVel = encRGetVel() ;
+	int32_t	leftVel = motVelGetL() ,
+			rightVel = motVelGetR() ;
 
 #ifdef PID_POS_REGULATOR
 	cntrlSt.currLeftPos += leftVel ;
@@ -166,19 +166,19 @@ void motCntrlTimeoutInt() {
 	rightTerm = pidIteration(rightPosTerm, rightVel, &cntrlSt.pidStructRight);
 
 	if(leftTerm > 0) {
-		motorsSetupML(CLOCKWISE) ;
-		motorsMLPwmSet((uint32_t)(leftTerm));
+		motStateSetL(CLOCKWISE) ;
+		motDutyCycleSetL((uint32_t)(leftTerm));
 	} else if(leftTerm < 0)  {
-		motorsSetupML(COUNTER_CLOCKWISE) ;
-		motorsMLPwmSet((uint32_t)(-leftTerm));
+		motStateSetL(COUNTER_CLOCKWISE) ;
+		motDutyCycleSetL((uint32_t)(-leftTerm));
 	}
 
 	if(rightTerm > 0) {
-		motorsSetupMR(CLOCKWISE) ;
-		motorsMRPwmSet((uint32_t)(rightTerm)) ;
+		motStateSetR(CLOCKWISE) ;
+		motDutyCycleSetR((uint32_t)(rightTerm)) ;
 	} else{
-		motorsSetupMR(COUNTER_CLOCKWISE) ;
-		motorsMRPwmSet((uint32_t)(-rightTerm)) ;
+		motStateSetR(COUNTER_CLOCKWISE) ;
+		motDutyCycleSetR((uint32_t)(-rightTerm)) ;
 	}
 
 #ifdef PID_TESTING

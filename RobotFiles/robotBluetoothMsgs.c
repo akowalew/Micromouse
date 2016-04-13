@@ -20,9 +20,9 @@ void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]) {
 	val /= 255 ;
 
 	if(params[0] == 0) { // LEFT MOTOR
-		motVelSetPointLeft(val) ;
+		motVelSpSetL(val) ;
 	} else {	// RIGHT MOTOR
- 		motVelSetPointRight(val) ;
+ 		motVelSpSetR(val) ;
 	}
 }
 

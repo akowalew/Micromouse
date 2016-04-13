@@ -70,4 +70,9 @@ void motCntrlClearControl() ;
 void motCntrlSetLeftPid(PidConstants_t leftPid) ;
 void motCntrlSetRightPid(PidConstants_t rightPid) ;
 
+void motVelSpSetL(int32_t velocityLeftSetPoint) ;
+void motVelSpSetR(int32_t velocityRightSetPoint) ;
+void motPosSpL(uint32_t positionLeftSetPoint);
+void motPosSpR(uint32_t positionRightSetPoint);
+
 #endif /* MOTORS_MOTORSCONTROLLER_H_ */

@@ -6,7 +6,7 @@
  */
 #include "MotorsDrivers.h"
 
-void motorsDriversInit() {
+void motDriversInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD) ;
@@ -43,84 +43,84 @@ void motorsDriversInit() {
 	PWMGenPeriodSet(MOT_1_BASE, MOT_1_GEN, MOT_PWM_PERIOD) ;
 }
 
-void motorsDriversEnable() {
+void motDriversEnable() {
 	PWMGenEnable(MOT_0_BASE, MOT_0_GEN) ;
 	PWMGenEnable(MOT_1_BASE, MOT_1_GEN) ;
 
 	// !STBY -> 1
-	motorsMLStbySet() ;
-	motorsMRStbySet() ;
+	motStbySetL() ;
+	motStbySetR() ;
 
 	PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT | PWM_OUT_1_BIT, true) ;
 }
 
-void motorsDriversDisable() {
+void motDriversDisable() {
 	PWMGenDisable(MOT_0_BASE, MOT_0_GEN) ;
 	PWMGenDisable(MOT_1_BASE, MOT_1_GEN) ;
 
 	// !STBY -> 0
-	motorsMLStbyClr() ;
-	motorsMRStbyClr() ;
+	motStbyClrL() ;
+	motStbyClrR() ;
 
 	PWMOutputState(MOT_0_BASE, PWM_OUT_6_BIT | PWM_OUT_1_BIT, false) ;
 }
 
 
-void motorsSetupML(MOTORS_SETUP motorsSetup) {
+void motStateSetL(MOTORS_SETUP motorsSetup) {
 	switch(motorsSetup) {
 	case SOFT_STOP :
 		// IN2 = 0
-		motorsMLIn2Clr() ;
+		motIn2ClrL() ;
 		// IN1 = 0
-		motorsMLIn1Clr() ;
+		motIn1ClrL() ;
 		break ;
 	case COUNTER_CLOCKWISE :
 		// IN2 = 1
-		motorsMLIn2Set() ;
+		motIn2SetL() ;
 		// IN1 = 0
-		motorsMLIn1Clr() ;
+		motIn1ClrL() ;
 		break ;
 	case CLOCKWISE :
 		// IN2 = 0
-		motorsMLIn2Clr() ;
+		motIn2ClrL() ;
 		// IN1 = 1
-		motorsMLIn1Set() ;
+		motIn1SetL() ;
 		break ;
 	case HARD_STOP :
 		// PWM = 0%
-		motorsMLPwmSet(1) ;
+		motDutyCycleSetL(1) ;
 		break ;
 	}
 }
 
-void motorsSetupMR(MOTORS_SETUP motorsSetup) {
+void motStateSetR(MOTORS_SETUP motorsSetup) {
 	switch(motorsSetup) {
 	case SOFT_STOP :
 		// IN2 = 0
-		motorsMRIn2Clr();
+		motIn2ClrR();
 		// IN1 = 0
-		motorsMRIn1Clr();
+		motIn1ClrR();
 		break ;
 	case COUNTER_CLOCKWISE :
 		// IN2 = 1
-		motorsMRIn2Set() ;
+		motIn2SetR() ;
 		// IN1 = 0
-		motorsMRIn1Clr() ;
+		motIn1ClrR() ;
 		break ;
 	case CLOCKWISE :
 		// IN2 = 0
-		motorsMRIn2Clr() ;
+		motIn2ClrR() ;
 		// IN1 = 1
-		motorsMRIn1Set() ;
+		motIn1SetR() ;
 		break ;
 	case HARD_STOP :
 		// PWM = 0%
-		motorsMRPwmSet(1) ;
+		motDutyCycleSetR(1) ;
 		break ;
 	}
 }
 
- void motorsMLPwmSet(uint32_t u32pwmVal) {
+ void motDutyCycleSetL(uint32_t u32pwmVal) {
 	if(u32pwmVal > MOT_PWM_0_8_VAL)
 		u32pwmVal = MOT_PWM_0_8_VAL ;
 	else if(u32pwmVal == 0)
@@ -128,7 +128,7 @@ void motorsSetupMR(MOTORS_SETUP motorsSetup) {
 	PWMPulseWidthSet(MOT_0_BASE, PWM_OUT_6, (u32pwmVal)) ;
 }
 
- void motorsMRPwmSet(uint32_t u32pwmVal) {
+ void motDutyCycleSetR(uint32_t u32pwmVal) {
 	if(u32pwmVal > MOT_PWM_0_8_VAL)
 		u32pwmVal = MOT_PWM_0_8_VAL ;
 	else if(u32pwmVal == 0)

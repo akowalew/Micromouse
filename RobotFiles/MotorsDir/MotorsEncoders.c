@@ -5,14 +5,14 @@
  *      Author: akowalew
  */
 
-#include "Encoders.h"
+#include "MotorsEncoders.h"
 
-uint32_t encRGetPos() 	{ return QEIPositionGet(QEI0_BASE); }
-uint32_t encLGetPos() 	{ return QEIPositionGet(QEI1_BASE); }
-int32_t encRGetVel() 	{ return QEIVelocityGet(QEI0_BASE) * QEIDirectionGet(QEI0_BASE) ;}
-int32_t encLGetVel()	{ return QEIVelocityGet(QEI1_BASE) * QEIDirectionGet(QEI1_BASE) ;}
+uint32_t motPosGetR() 	{ return QEIPositionGet(QEI0_BASE); }
+uint32_t motPosGetL() 	{ return QEIPositionGet(QEI1_BASE); }
+int32_t motVelGetR() 	{ return QEIVelocityGet(QEI0_BASE) * QEIDirectionGet(QEI0_BASE) ;}
+int32_t motVelGetL()	{ return QEIVelocityGet(QEI1_BASE) * QEIDirectionGet(QEI1_BASE) ;}
 
-void encInit() {
+void motEncodersInit() {
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_QEI0) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_QEI1) ;
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC) ;
@@ -43,7 +43,7 @@ void encInit() {
 	QEIPositionSet(QEI1_BASE, 0) ;
 }
 
-void encEnable() {
+void motEncodersEnable() {
 	QEIEnable(QEI0_BASE) ;
 	QEIEnable(QEI1_BASE) ;
 
@@ -51,7 +51,7 @@ void encEnable() {
 	QEIVelocityEnable(QEI1_BASE) ;
 }
 
-void encDisable() {
+void motEncodersDisable() {
 	QEIDisable(QEI0_BASE) ;
 	QEIDisable(QEI1_BASE) ;
 
