@@ -1,7 +1,15 @@
 Debug/
+Release/
+Out/
+
+utils/
+startup_gcc.c
+
 .settings*
 .launches
 .ccsproject
 .cproject
 .project
-Release/
+
+*.sublime-project
+*.sublime-workspace
