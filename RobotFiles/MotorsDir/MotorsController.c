@@ -9,81 +9,8 @@
 
 volatile struct {
 	motorControl_t motL, motR;
-
+	bool isRegulationRunning;
 } cntrlSt;
-
-#ifdef PID_TESTING
-	volatile uint16_t test_i ;
-	volatile uint16_t maxI ;
-	volatile uint32_t btVelSp, btPosSp ;
-	volatile int32_t	test_leftValue[PID_TEST_ARRAY_SIZE],
-						test_leftSteer[PID_TEST_ARRAY_SIZE],
-						test_rightValue[PID_TEST_ARRAY_SIZE],
-						test_rightSteer[PID_TEST_ARRAY_SIZE] ;
-	char pidTestStr[24] ;
-
-	void pidTestInit() {
-		btVelSp = 0 ;
-		btPosSp = 0;
-
-		maxI = PID_TEST_ARRAY_SIZE ;
-	}
-
-	void pidTestStartTesting(){
-		motVelSpSetL(btVelSp);
-		motVelSpSetR(btVelSp);
-		motPosSpSetR(btPosSp);
-		motPosSpSetL(btPosSp);
-
-		usprintf(
-				pidTestStr,
-				"LPIDVEL P %d I %d D %d\r\n",
-				(uint8_t)(cntrlSt.motL.velPid.Kp*10),
-				(uint8_t)(cntrlSt.motL.velPid.Ki*10),
-				(uint8_t)(cntrlSt.motL.velPid.Kd*10)
-				) ;
-		PID_TEST_DUMP_FUN(pidTestStr) ;
-
-		usprintf(
-				pidTestStr,
-				"RPIDVEL P %d I %d D %d\r\n",
-				(uint8_t)(cntrlSt.motR.velPid.Kp*10),
-				(uint8_t)(cntrlSt.motR.velPid.Ki*10),
-				(uint8_t)(cntrlSt.motR.velPid.Kd*10)
-				) ;
-		PID_TEST_DUMP_FUN(pidTestStr) ;
-
-		usprintf(pidTestStr, "SP %d MAXI %d\r\n", btVelSp, maxI);
-		PID_TEST_DUMP_FUN(pidTestStr) ;
-
-		usprintf(pidTestStr, "Pos SP %d\r\n", btPosSp);
-		PID_TEST_DUMP_FUN(pidTestStr);
-
-		test_i = 0 ;
-	}
-
-	bool pidTestIsStillTesting(){
-		return (test_i < maxI) ;
-	}
-
-	void pidTestSendData(){
-		uint16_t i ;
-		for(i = 0 ; i < maxI ; i++) {
-			usprintf(pidTestStr, "%d %d %d %d\n", test_leftValue[i], test_leftSteer[i], test_rightValue[i], test_rightSteer[i]) ;
-			PID_TEST_DUMP_FUN(pidTestStr) ;
-		}
-	}
-
-	void btFunPidTestConfigure(uint8_t params[BT_TASKS_PARAM_NUM]){
-		btVelSp = params[0] ;
-	}
-
-	void btFunPosSP(uint8_t params[BT_TASKS_PARAM_NUM]){
-		uint32_t val = (((uint32_t)params[0]) << 16) | (((uint32_t)params[1]) << 8) | ((uint32_t)params[2]) ;
-		btPosSp = val ;
-	}
-
-#endif
 
 void motCntrlFunctionL(){
 	motEncodersIntClearL();
@@ -111,9 +38,18 @@ void motCntrlFunctionL(){
 		motDutyCycleSetL((uint32_t)(-velTermL));
 	}
 
+	if(velL == 0 &&
+			((cntrlSt.motL.posCurr <= cntrlSt.motL.posSp + POS_PID_DELTA_TICKS) &&
+			(cntrlSt.motL.posCurr >= cntrlSt.motL.posSp - POS_PID_DELTA_TICKS)) )
+		cntrlSt.motL.isRegulationDone = true;
+	else
+		cntrlSt.motL.isRegulationDone = false;
+
+	if(cntrlSt.motL.isRegulationDone && cntrlSt.motR.isRegulationDone)
+		motCntrlRegulationStop();
+
 #ifdef PID_TESTING
-	test_leftSteer[test_i] = posTermL;
-	test_leftValue[test_i] = cntrlSt.motL.posCurr;
+	pidTestAddDataL(posTermL, cntrlSt.motL.posCurr);
 #endif
 }
 
@@ -142,10 +78,18 @@ void motCntrlFunctionR(){
 		motDutyCycleSetR((uint32_t)(-velTermR)) ;
 	}
 
+	if(velR == 0 &&
+			((cntrlSt.motR.posCurr <= cntrlSt.motR.posSp + POS_PID_DELTA_TICKS) &&
+			(cntrlSt.motR.posCurr >= cntrlSt.motR.posSp - POS_PID_DELTA_TICKS)) )
+		cntrlSt.motR.isRegulationDone = true;
+	else
+		cntrlSt.motR.isRegulationDone = false;
+
+	if(cntrlSt.motL.isRegulationDone && cntrlSt.motR.isRegulationDone)
+		motCntrlRegulationStop();
+
 #ifdef PID_TESTING
-	test_rightSteer[test_i] = posTermR;
-	test_rightValue[test_i] = cntrlSt.motR.posCurr;
-	test_i++;
+	pidTestAddDataR(posTermR, cntrlSt.motR.posCurr);
 #endif
 }
 
@@ -181,15 +125,39 @@ void motCntrlInit() {
 #ifdef PID_TESTING
 	pidTestInit() ;
 #endif
+
 }
 
 void motCntrlEnable() {
-	motEncodersInterruptsEnable();
+	//motEncodersInterruptsEnable();
 }
 
 void motCntrlDisable() {
+	//motEncodersInterruptsDisable();
+	//motCntrlReset() ;
+}
+
+bool motCntrlRegulationIsRunning(){
+	return cntrlSt.isRegulationRunning;
+}
+
+void motCntrlRegulationStart(){
+	cntrlSt.isRegulationRunning = true;
+	motEncodersInterruptsEnable();
+}
+void motCntrlRegulationStop(){
+	cntrlSt.isRegulationRunning = false;
+
+	// zatrzymaj silniki
+	motDutyCycleSetR(1) ;
+	motDutyCycleSetL(1) ;
+
 	motEncodersInterruptsDisable();
-	motCntrlReset() ;
+
+#ifdef PID_TESTING
+	if(pidTestIsStillTesting())
+		pidTestStopTesting();
+#endif
 }
 
 
@@ -203,7 +171,7 @@ void motPosSpSetL(uint32_t positionLeftSetPoint){
 	cntrlSt.motL.posSp = positionLeftSetPoint;
 }
 void motPosSpSetR(uint32_t positionRightSetPoint){
-	cntrlSt.motL.posSp = positionRightSetPoint;
+	cntrlSt.motR.posSp = positionRightSetPoint;
 }
 
 void motPidVelSetupL(float kp, float ki, float kd){

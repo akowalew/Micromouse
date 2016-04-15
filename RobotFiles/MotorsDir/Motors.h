@@ -13,6 +13,7 @@
 #include "MotorsController.h"
 #include "MotorsDrivers.h"
 #include "MotorsEncoders.h"
+#include "MotorsPidTesting.h"
 
 void motorsInit() ;
 void motorsEnable() ;

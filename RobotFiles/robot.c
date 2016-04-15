@@ -37,8 +37,7 @@ void robotInit() {
 	btAddMessage(0x09, btFunStart) ;
 	btAddMessage(0x10, btFunMotor) ;
 #ifdef PID_TESTING
-	btAddMessage(0x05, btFunPidTestConfigure) ;
-	btAddMessage(0x04, btFunPosSP) ;
+	btAddMessage(0x05, pidTestSetPointsSet) ;
 #endif
 
  	batSensInit() ;
@@ -77,7 +76,6 @@ void robotProcedure() {
 	}
 
 	robotStop() ;
-	pidTestSendData() ;
 }
 
 

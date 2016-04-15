@@ -121,17 +121,27 @@ void motStateSetR(MOTORS_SETUP motorsSetup) {
 }
 
  void motDutyCycleSetL(uint32_t u32pwmVal) {
-	if(u32pwmVal > MOT_PWM_0_8_VAL)
-		u32pwmVal = MOT_PWM_0_8_VAL ;
-	else if(u32pwmVal == 0)
+
+#ifdef MOT_PWM_RAMP_ENABLE
+	if(u32pwmVal > MOT_PWM_RAMP_VAL)
+		u32pwmVal = MOT_PWM_RAMP_VAL ;
+#endif
+
+	if(u32pwmVal == 0)
 		u32pwmVal = 1;
+
 	PWMPulseWidthSet(MOT_0_BASE, PWM_OUT_6, (u32pwmVal)) ;
 }
 
  void motDutyCycleSetR(uint32_t u32pwmVal) {
-	if(u32pwmVal > MOT_PWM_0_8_VAL)
-		u32pwmVal = MOT_PWM_0_8_VAL ;
-	else if(u32pwmVal == 0)
+
+#ifdef MOT_PWM_RAMP_ENABLE
+	if(u32pwmVal > MOT_PWM_RAMP_VAL)
+		u32pwmVal = MOT_PWM_RAMP_VAL ;
+#endif
+
+	if(u32pwmVal == 0)
 		u32pwmVal = 1;
+
 	PWMPulseWidthSet(MOT_1_BASE, PWM_OUT_1, (u32pwmVal));
 }

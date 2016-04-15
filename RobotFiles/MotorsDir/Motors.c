@@ -18,11 +18,17 @@ void motorsEnable() {
 	// initial gpio status
 	motDriversEnable() ;
 	motEncodersEnable() ;
+
+
+
 	motCntrlEnable();
 }
 
 void motorsDisable() {
 	motDriversDisable() ;
-	motCntrlDisable() ;
 	motEncodersDisable() ;
+
+
+
+	motCntrlDisable() ;
 }

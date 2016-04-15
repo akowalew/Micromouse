@@ -29,7 +29,6 @@ void motEncodersInterruptsDisable();
 #define ENC_LEFT_BASE	QEI1_BASE
 #define ENC_RIGHT_BASE	QEI0_BASE
 
-
 // 10 ms period between measures
 #define ENC_VELOCITY_PERIOD	800000
 
