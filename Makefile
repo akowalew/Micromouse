@@ -22,6 +22,7 @@ OUT_DIR=Out
 TIVAWARE_DIR=/home/akkenoth/documents/micromouse/tivaware
 # OpenOCD board config file, used for flashing ('make flash')
 OCD_BOARD_CONFIG=/usr/share/openocd/scripts/board/ek-tm4c123gxl.cfg
+OCD_BOARD_CONFIG_JTAG=tiva_ocd_boardconfig_jtag.cfg
 # OpenOCD flash script, executed during 'make flash'
 OCD_RUN_SCRIPT=tiva_ocd_script.cfg
 # Additional dependencies to link against
@@ -124,6 +125,9 @@ utils/%.c: prepare
 
 flash: ${OUT_DIR}/${BIN_NAME}.bin
 	openocd -f ${OCD_BOARD_CONFIG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash ${OUT_DIR}/${BIN_NAME}.bin" -c shutdown
+
+flash_jtag: ${OUT_DIR}/${BIN_NAME}.bin
+	openocd -f ${OCD_BOARD_CONFIG_JTAG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash ${OUT_DIR}/${BIN_NAME}.bin" -c shutdown
 
 clean:
 	@rm -vRf ${OUT_DIR}/*
