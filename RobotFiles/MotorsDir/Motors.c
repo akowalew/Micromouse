@@ -19,16 +19,12 @@ void motorsEnable() {
 	motDriversEnable() ;
 	motEncodersEnable() ;
 
-
-
 	motCntrlEnable();
 }
 
 void motorsDisable() {
 	motDriversDisable() ;
 	motEncodersDisable() ;
-
-
 
 	motCntrlDisable() ;
 }

@@ -36,9 +36,11 @@ void robotInit() {
 	btAddMessage(0x08, btFunRPid) ;
 	btAddMessage(0x09, btFunStart) ;
 	btAddMessage(0x10, btFunMotor) ;
-#ifdef PID_TESTING
-	btAddMessage(0x05, pidTestSetPointsSet) ;
-#endif
+
+	btAddMessage(0x05, btFunPosSpLeftSet) ;
+	btAddMessage(0x06, btFunPosSpRightSet) ;
+
+	btAddMessage(0x04, btFunDumpTest) ;
 
  	batSensInit() ;
 	batSensEnable() ;

@@ -10,6 +10,9 @@
 
 #include "MotorsController.h"
 
+
+#define PID_TESTING
+
 #ifdef PID_TESTING
 #include "../Communication/Bluetooth.h"
 	#define PID_TEST_ARRAY_SIZE	 200
@@ -19,8 +22,6 @@
 	void pidTestStopTesting();
 	bool pidTestIsStillTesting() ;
 	void pidTestSendData() ;
-
-	void pidTestSetPointsSet(uint8_t params[BT_TASKS_PARAM_NUM]);
 
 	void pidTestAddDataL(int32_t data1, int32_t data2);
 	void pidTestAddDataR(int32_t data1, int32_t data2);

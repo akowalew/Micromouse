@@ -12,6 +12,8 @@ volatile struct {
 	bool isRegulationRunning;
 } cntrlSt;
 
+#define abs(x) ((x) >= 0 ? (x) : (-x))
+
 void motCntrlFunctionL(){
 	motEncodersIntClearL();
 
@@ -22,8 +24,11 @@ void motCntrlFunctionL(){
 	cntrlSt.motL.posCurr += velL ;
 	// pid położeniowy
 	posTermL = pidIteration(cntrlSt.motL.posSp, cntrlSt.motL.posCurr, &cntrlSt.motL.posPid);
-	if(posTermL > cntrlSt.motL.velSp)
+
+
+	if(abs(posTermL) > abs(cntrlSt.motL.velSp))
 		posTermL = cntrlSt.motL.velSp;
+
 #else
 	posTermL = cntrlSt.motL.velSp;
 #endif
@@ -62,7 +67,7 @@ void motCntrlFunctionR(){
 #ifdef PID_POS_REGULATOR
 	cntrlSt.motR.posCurr += velR ;
 	posTermR = pidIteration(cntrlSt.motR.posSp, cntrlSt.motR.posCurr, &cntrlSt.motR.posPid);
-	if(posTermR > cntrlSt.motR.velSp)
+	if(abs(posTermR) > abs(cntrlSt.motR.velSp))
 		posTermR = cntrlSt.motR.velSp;
 #else
 	posTermL = cntrlSt.motL.velSp;
@@ -108,6 +113,13 @@ void motCntrlReset() {
 	cntrlSt.motR.velSp = 0;
 }
 
+void motCntrlClear(){
+	pidCntrlReset(&cntrlSt.motL.posPid);
+	pidCntrlReset(&cntrlSt.motL.velPid);
+	pidCntrlReset(&cntrlSt.motR.posPid);
+	pidCntrlReset(&cntrlSt.motR.velPid);
+}
+
 
 void motCntrlInit() {
 // enable FPU to make calculations better
@@ -142,6 +154,8 @@ bool motCntrlRegulationIsRunning(){
 }
 
 void motCntrlRegulationStart(){
+	cntrlSt.motL.posCurr = 0;
+	cntrlSt.motR.posCurr = 0;
 	cntrlSt.isRegulationRunning = true;
 	motEncodersInterruptsEnable();
 }
@@ -154,12 +168,13 @@ void motCntrlRegulationStop(){
 
 	motEncodersInterruptsDisable();
 
+	motCntrlClear();
+
 #ifdef PID_TESTING
 	if(pidTestIsStillTesting())
 		pidTestStopTesting();
 #endif
 }
-
 
 void motVelSpSetL(int32_t velocitySp) {
 	cntrlSt.motL.velSp = velocitySp ;
@@ -167,10 +182,10 @@ void motVelSpSetL(int32_t velocitySp) {
 void motVelSpSetR(int32_t velocitySp) {
 	cntrlSt.motR.velSp = velocitySp ;
 }
-void motPosSpSetL(uint32_t positionLeftSetPoint){
+void motPosSpSetL(int32_t positionLeftSetPoint){
 	cntrlSt.motL.posSp = positionLeftSetPoint;
 }
-void motPosSpSetR(uint32_t positionRightSetPoint){
+void motPosSpSetR(int32_t positionRightSetPoint){
 	cntrlSt.motR.posSp = positionRightSetPoint;
 }
 
@@ -185,4 +200,11 @@ void motPidPosSetupL(float kp, float ki, float kd){
 }
 void motPidPosSetupR(float kp, float ki, float kd){
 	pidCntrlConstantsSet(&cntrlSt.motR.posPid, kp, ki, kd);
+}
+
+void motSetPointsGet(int32_t *posLeftSp, int32_t *velLeftSp, int32_t *posRightSp, int32_t *velRightSp) {
+	*posLeftSp = cntrlSt.motL.posSp;
+	*posRightSp = cntrlSt.motR.posSp;
+	*velLeftSp = cntrlSt.motL.velSp;
+	*velRightSp = cntrlSt.motR.velSp;
 }

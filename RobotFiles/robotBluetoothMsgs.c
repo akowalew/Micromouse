@@ -7,7 +7,7 @@
  */
 
 
-#include "robot.h"
+#include "robotBluetoothMsgs.h"
 
 
 void btFunMotor(uint8_t params[BT_TASKS_PARAM_NUM]) {
@@ -39,4 +39,34 @@ void btFunLPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
 void btFunRPid(uint8_t params[BT_TASKS_PARAM_NUM]) {
 	float kp = ((float)(params[0]))/10, ki = ((float)(params[1]))/10, kd = ((float)(params[2]))/10 ;
 	motPidVelSetupR(kp, ki, kd);
+}
+
+void btFunPosSpLeftSet(uint8_t params[BT_TASKS_PARAM_NUM]){
+	int32_t pos = (((int32_t)params[1]) << 8) | (((int32_t)params[2]));
+	int32_t vel = ((int32_t)(params[0])) & 0x7F ;
+
+	if(params[0] & (1 << 7)) {
+		motPosSpSetL(-pos);
+		motVelSpSetL(-vel);
+	} else {
+		motPosSpSetL(pos);
+		motVelSpSetL(vel);
+	}
+}
+
+void btFunPosSpRightSet(uint8_t params[BT_TASKS_PARAM_NUM]){
+	int32_t pos = (((int32_t)params[1]) << 8) | (((int32_t)params[2]));
+	int32_t vel = ((int32_t)(params[0])) & 0x7F ;
+
+	if(params[0] & (1 << 7)) {
+		motPosSpSetR(-pos);
+		motVelSpSetR(-vel);
+	} else {
+		motPosSpSetR(pos);
+		motVelSpSetR(vel);
+	}
+}
+
+void btFunDumpTest(uint8_t params[BT_TASKS_PARAM_NUM]){
+	pidTestSendData();
 }

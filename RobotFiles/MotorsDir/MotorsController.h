@@ -13,6 +13,7 @@
 #include "PidController.h"
 #include "driverlib/timer.h"
 #include "driverlib/fpu.h"
+#include "MotorsPidTesting.h"
 
 #define PID_LEFT_KP 1.5
 #define PID_LEFT_KI 0.95
@@ -43,12 +44,13 @@ typedef struct {
 	bool isRegulationDone;
 } motorControl_t;
 
-#define PID_TESTING
 #define PID_POS_REGULATOR
 
 void motCntrlInit();
 void motCntrlEnable();
 void motCntrlDisable();
+void motCntrlReset();
+void motCntrlClear();
 
 void motPidVelSetupL(float kp, float ki, float kd);
 void motPidVelSetupR(float kp, float ki, float kd);
@@ -62,7 +64,9 @@ bool motCntrlRegulationIsRunning();
 
 void motVelSpSetL(int32_t velocityLeftSetPoint) ;
 void motVelSpSetR(int32_t velocityRightSetPoint);
-void motPosSpSetL(uint32_t positionLeftSetPoint);
-void motPosSpSetR(uint32_t positionRightSetPoint);
+void motPosSpSetL(int32_t positionLeftSetPoint);
+void motPosSpSetR(int32_t positionRightSetPoint);
+
+void motSetPointsGet(int32_t *posLeftSp, int32_t *velLeftSp, int32_t *posRightSp, int32_t *velRightSp) ;
 
 #endif /* MOTORS_MOTORSCONTROLLER_H_ */
