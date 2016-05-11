@@ -50,8 +50,10 @@ void motCntrlFunctionL(){
 	else
 		cntrlSt.motL.isRegulationDone = false;
 
+
 	if(cntrlSt.motL.isRegulationDone && cntrlSt.motR.isRegulationDone)
 		motCntrlRegulationStop();
+
 
 #ifdef PID_TESTING
 	pidTestAddDataL(posTermL, cntrlSt.motL.posCurr);
@@ -90,8 +92,10 @@ void motCntrlFunctionR(){
 	else
 		cntrlSt.motR.isRegulationDone = false;
 
+
 	if(cntrlSt.motL.isRegulationDone && cntrlSt.motR.isRegulationDone)
 		motCntrlRegulationStop();
+
 
 #ifdef PID_TESTING
 	pidTestAddDataR(posTermR, cntrlSt.motR.posCurr);
