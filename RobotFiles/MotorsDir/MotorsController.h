@@ -15,11 +15,11 @@
 #include "driverlib/fpu.h"
 #include "MotorsPidTesting.h"
 
-#define PID_LEFT_KP 1.5
+#define PID_LEFT_KP 1.375
 #define PID_LEFT_KI 0.95
 #define PID_LEFT_KD 1.0
 
-#define PID_RIGHT_KP 1.5
+#define PID_RIGHT_KP 1.375
 #define PID_RIGHT_KI 1.0
 #define PID_RIGHT_KD 1.75
 
@@ -27,7 +27,7 @@
 #define POS_PID_LEFT_KI	0.0
 #define POS_PID_LEFT_KD	2.85
 
-#define POS_PID_RIGHT_KP	0.2
+#define POS_PID_RIGHT_KP	0.19
 #define POS_PID_RIGHT_KI	0.0
 #define POS_PID_RIGHT_KD	2.85
 
