@@ -18,6 +18,7 @@ struct LabirynthField {
 };
 LabirynthField map[8][8];
 bool goalFound = false;
+bool errorOccured = false;
 
 // Globals and functions that should be declared elsewhere
 #define DIRECTION_NORTH 0x01
@@ -112,11 +113,12 @@ void mapLabirynth(bool westernCorner = true, bool southernCorner = true) {
 			}
 			if(scanError) {
 				//printf("SCAN ERROR\n");
+				errorOccured = true;
 				break;
 			}
 
 			// Modify field status
-			map[currentX][currentY].status &= !FIELD_UNMAPPED;
+			map[currentX][currentY].status &= ~FIELD_UNMAPPED;
 			map[currentX][currentY].status |= FIELD_MAPPED;
 			map[currentX][currentY].status |= currentFieldWalls;
 
