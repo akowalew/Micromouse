@@ -13,3 +13,5 @@ startup_gcc.c
 
 *.sublime-project
 *.sublime-workspace
+
+Makefile.conf.mk

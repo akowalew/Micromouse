@@ -11,7 +11,7 @@
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 
 ################
-# Main configuration variables - change these to match your system, directory structure etc!
+# Main configuration variables - default values. Don't change - copy to "makefile.conf.mk" file and modify accordingly instead.
 ################
 
 # Binary file name. ".bin" extension will be added automatically.
@@ -19,7 +19,7 @@ BIN_NAME=tiva
 # Output directory name.
 OUT_DIR=Out
 # TivaWare directory (one containing "driverlib" and "boards" directories etc) path
-TIVAWARE_DIR=/home/dicker/Embedded/tivaware
+TIVAWARE_DIR=/opt/tivaware
 # OpenOCD board config file, used for flashing ('make flash')
 OCD_BOARD_CONFIG=/usr/share/openocd/scripts/board/ek-tm4c123gxl.cfg
 OCD_BOARD_CONFIG_JTAG=tiva_ocd_boardconfig_jtag.cfg
@@ -45,6 +45,12 @@ OBJCOPY=arm-none-eabi-objcopy
 
 ################
 ### End of configuration variables.
+################
+### Include configuration makefile.
+################
+
+-include Makefile.conf.mk
+
 ################
 ### Below be dragons and Makefile magic.
 ### Don't wander there unless you're brave (or stupid).
@@ -124,15 +130,10 @@ ${OUT_DIR}/%.d: %.c
 utils/%.c: prepare
 
 flash: ${OUT_DIR}/${BIN_NAME}.bin
-<<<<<<< HEAD
-	openocd --file ${OCD_BOARD_CONFIG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash ${OUT_DIR}/${BIN_NAME}.bin" -c reset
-	#openocd --file ${OCD_BOARD_CONFIG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash `basename ${CURID}`${OUT_DIR}/${BIN_NAME}.bin" -c shutdown
-=======
-	openocd -f ${OCD_BOARD_CONFIG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash ${OUT_DIR}/${BIN_NAME}.bin" -c shutdown
+	openocd -f ${OCD_BOARD_CONFIG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash ${OUT_DIR}/${BIN_NAME}.bin" -c reset
 
 flash_jtag: ${OUT_DIR}/${BIN_NAME}.bin
-	openocd -f ${OCD_BOARD_CONFIG_JTAG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash ${OUT_DIR}/${BIN_NAME}.bin" -c shutdown
->>>>>>> 525319d572c76dd9c48a00e1682e26fa208e658d
+	openocd -f ${OCD_BOARD_CONFIG_JTAG} -f ${OCD_RUN_SCRIPT} -c "tiva_flash ${OUT_DIR}/${BIN_NAME}.bin" -c reset
 
 clean:
 	@rm -vRf ${OUT_DIR}/*
